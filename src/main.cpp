@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 #include "Wire.h"
-#include "RTClib.h"
+#include "RTCModule.h"
 
 long duration;
 int distance;
@@ -19,7 +19,6 @@ File root;
 
 String fileNameFormat = "datalog.csv";
 
-RTC_DS3231 rtc;
 void writeToSD(String fileName, String text)
 {
     myFile = SD.open(fileName, FILE_WRITE);
@@ -34,23 +33,6 @@ void writeToSD(String fileName, String text)
     }
 }
 
-String getTimeString()
-{
-  DateTime now = rtc.now();
-  String timeString = "";
-  timeString += now.year();
-  timeString += '/';
-  timeString += (now.month(), DEC);
-  timeString += '/';
-  timeString += (now.day(), DEC);
-  timeString += ' ';
-  timeString += (now.hour(), DEC);
-  timeString += ':';
-  timeString += (now.minute(), DEC);
-  timeString += ':';
-  timeString += (now.second(), DEC);
-  return timeString;
-}
 
 void setup() {
   // Initialize LED pin.
@@ -79,12 +61,8 @@ void setup() {
   
   writeToSD(fileNameFormat, "Time (ms),Distance (cm)");
 
-  if (! rtc.begin()) {
-    Serial.println("Couldn't find RTC");
-    Serial.flush();
-    while (1) delay(10);
-  }
-  Serial.println("RTC initialization done.");
+  initializeRTC();
+  Serial.println(getTimeString());
   Serial.print("Time is:");
   Serial.println(getTimeString());
   Serial.println("test");
