@@ -5,12 +5,13 @@ RTC_DS3231 rtc;
 
 // Functions
 void initializeRTC(){
+  Serial.println("Initializing RTC module...");
     if (! rtc.begin()) {
-        Serial.println("Couldn't find RTC");
+        Serial.println("RTC module initialization failed.");
         Serial.flush();
         while (1) delay(10);
     }
-    Serial.println("RTC initialization done.");
+    Serial.println("RTC module has initialized successfully.");
 }
 
 String getTimeString()
