@@ -4,7 +4,7 @@ File myFile;
 
 // Functions
 void initializeSD(){
-    Serial.println("Initializing SD module...")
+    Serial.println("Initializing SD module...");
     if (!SD.begin(SS)) {
         Serial.println("SD module initialization failed!");
         while (1);

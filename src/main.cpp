@@ -6,6 +6,7 @@
 #include "Wire.h"
 #include "RTCModule.h"
 #include "SDModule.h"
+#include "SerialCmd.h"
 
 long duration;
 int distance;
@@ -14,7 +15,6 @@ unsigned long previousMillis = 0UL;
 unsigned long distanceReadInterval = 2000UL;
 unsigned long currentMillis = 0;
 
-File myFile;
 File root;
 
 String fileNameFormat = "datalog.csv";
@@ -27,13 +27,15 @@ void setup() {
   // Initialize Distance Sensor pins.
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
+
   
   // Initialize Serial comms.
   Serial.begin(96000);
   while (!Serial) {
     ; // Allow Serial to initialize
   }
-  // Serial.println("Serial has initialized...");
+  delay(500);
+  Serial.println("Serial has initialized...");
 
   // initializeSD();
   // Serial.println("Adding headers to csv file");
@@ -42,25 +44,57 @@ void setup() {
   // initializeRTC();
   // Serial.print("Time is:");
   // Serial.println(getTimeString());
+  printMenu();
 }
 
 // the loop routine runs over and over again forever:
 void loop() {
-
-  input = Serial.read();
-  switch(input){
-    case 'a':
-    {
-      Serial.println("A");
-      break;
+  if (Serial.available() > 0){
+    char input = Serial.read();
+    switch(input){
+      case 'h':
+      case 'H':
+      {
+        Serial.println('h');
+        printMenu();
+        break;
+      }
+      case '0':
+      {
+        Serial.println('0');
+        Serial.println("Which sensor would you like to toggle?... ");
+        break;
+      }
+      case '1':
+      {
+        Serial.println('1');
+        Serial.println("Here are your values: ");
+        break;
+      }
+      case '2':
+      {
+        Serial.println('2');
+        Serial.println("Here are your files: ");
+        break;
+      }
+      case '3':
+      {
+        Serial.println('3');
+        Serial.println("Which sensor would you like to adjust?... ");
+        break;
+      }
+      case '4':
+      {
+        Serial.println('4');
+        Serial.println("Set the Date and Time using this format... ");
+        break;
+      }
+      default:
+      {
+        Serial.println("Unkown command, press h to view all commands. ");
+        break;
+      }
     }
-    case 'b':
-    {
-      Serial.println("B");
-      break;
-    }
-    default:
-      break;
   }
   // currentMillis = millis();
   

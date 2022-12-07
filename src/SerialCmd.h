@@ -5,3 +5,5 @@ enum{
     toggleDistance,
     toggleSpectral
 };
+
+void printMenu();
