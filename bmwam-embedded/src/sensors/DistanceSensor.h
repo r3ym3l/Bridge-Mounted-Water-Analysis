@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-#include <sensors.h>
+#include <pinout.h>
 
 class DistanceSensor {
     public:
