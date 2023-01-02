@@ -5,7 +5,7 @@
 #include <pinout.h>
 
 class DistanceSensor {
-    public:
-        int readDistance();
-        void printDistance();
+public:
+    int readDistance();
+    void printDistance();
 };
