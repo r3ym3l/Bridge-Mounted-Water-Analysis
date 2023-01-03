@@ -1,6 +1,6 @@
 #include <SD.h>
 // Variables
-
 // Functions
-void initializeSD();
-void writeToSD(String fileName, String text);
+bool initializeSD();
+bool writeToSD(String fileName, String text);
+void printFiles();

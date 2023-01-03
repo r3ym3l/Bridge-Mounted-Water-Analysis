@@ -1,6 +1,6 @@
 #include "RTClib.h"
 
 // Functions
-void initializeRTC();
+bool initializeRTC();
 
 String getTimeString();
