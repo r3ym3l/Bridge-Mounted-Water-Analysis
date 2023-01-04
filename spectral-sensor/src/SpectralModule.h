@@ -15,8 +15,6 @@ struct spectralChannels {
 	int fCount[8];
 };
 
-void printTime(int time);
-
 void processReadings(spectralChannels& ch, int n);
 
 void processAverage(spectralChannels& ch, int n);

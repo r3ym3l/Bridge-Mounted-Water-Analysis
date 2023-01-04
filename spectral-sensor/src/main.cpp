@@ -2,6 +2,8 @@
 
 DFRobot_AS7341 as7341;
 
+void printTime(int time);
+
 void setup(void)
 {
 	Serial.begin(115200);
@@ -37,6 +39,8 @@ void loop(void)
 		// write data to .csv file
 	}
 
+  // can save values in struct ch into .csv and/or
+  // save highest value (channel)
 	processReadings(ch, n);
 
 	Serial.println("");
@@ -49,4 +53,13 @@ void loop(void)
 	Serial.println("Waiting...");
 	Serial.println("");
 	delay(20000);	// delay for 20 seconds after 10 readings then repeat
+}
+
+void printTime(int time)
+{
+	Serial.print("Time to read data: ");
+	Serial.print(time);
+	Serial.println(" milliseconds");
+	Serial.println("");
+	delay(1000);
 }

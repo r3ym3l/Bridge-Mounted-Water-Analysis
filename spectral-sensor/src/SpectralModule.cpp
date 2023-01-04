@@ -1,20 +1,14 @@
 #include "SpectralModule.h"
 
-void printTime(int time)
-{
-	Serial.print("Time to read data: ");
-	Serial.print(time);
-	Serial.println(" milliseconds");
-	Serial.println("");
-	delay(1000);
-}
-
+// getting the average intensity levels of each channel
+// to determine the highest intensity (channel)
 void processReadings(spectralChannels& ch, int n)
 {
 	processAverage(ch, n);
 	findMaxIntensity(ch);
 }
 
+// average intensity levels of each channel for "n" readings
 void processAverage(spectralChannels& ch, int n)
 {
 	ch.f1 = ch.f1 / (uint16_t) n;
