@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-
-#include "Adafruit_SHT31.h"
+#include <Wire.h>
 
 #include "sensors/DistanceSensor.h"
+#include "sensors/TempSensor.h"
