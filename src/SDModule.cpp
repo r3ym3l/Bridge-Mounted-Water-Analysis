@@ -9,21 +9,21 @@ uint SD_CS_PIN = 12u;
 
 // Functions
 bool initializeSD(){
-    Serial.println("Initializing SD module...");
+    // serial.println("Initializing SD module...");
     if (!SD.begin(SD_CS_PIN)) {
-        Serial.println("SD module initialization failed!");
+        // serial.println("SD module initialization failed!");
         return false;
     }
-    Serial.println("SD module has initialized successfully.");
+    // serial.println("SD module has initialized successfully.");
     while (!card.init(SPI_HALF_SPEED, SD_CS_PIN)) {
-    Serial.println("initialization failed. Things to check:");
-    Serial.println("* is a card is inserted?");
-    Serial.println("* Is your wiring correct?");
-    Serial.println("* did you change the chipSelect pin to match your shield or module?");
+    // serial.println("initialization failed. Things to check:");
+    // serial.println("* is a card is inserted?");
+    // serial.println("* Is your wiring correct?");
+    // serial.println("* did you change the chipSelect pin to match your shield or module?");
     }  
     if (!volume.init(card)) {
-      Serial.println("Could not find FAT16/FAT32 partition.");
-      Serial.println("Make sure you've formatted the card");
+      // serial.println("Could not find FAT16/FAT32 partition.");
+      // serial.println("Make sure you've formatted the card");
       return false;
     }
     return true;
@@ -40,14 +40,20 @@ bool writeToSD(String fileName, String text)
     }
     else
     {
-      Serial.println("Write to SD failed");
+      // serial.println("Write to SD failed");
       return false;
     }
 }
 
 void printFiles()
 {
-  Serial.println("Files (name, date and size in bytes): ");
+  // // serial.println("Files (name, date and size in bytes): ");
   root.openRoot(volume);
   root.ls(LS_R | LS_DATE | LS_SIZE);
+}
+
+uint32_t readFileSize(String fileName)
+{
+  myFile = SD.open(fileName, FILE_READ);
+  return myFile.size();
 }
