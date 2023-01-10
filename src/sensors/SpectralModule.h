@@ -1,5 +1,6 @@
-#include "DFRobot_AS7341.h"
+#pragma once
 
+#include "DFRobot_AS7341.h"
 struct spectralChannels {
 	uint16_t f1 = 0;
 	uint16_t f2 = 0;
@@ -15,10 +16,8 @@ struct spectralChannels {
 	int fCount[8];
 };
 
-void processReadings(spectralChannels& ch, int n);
-
+void spectralInit();
+void processSpectrum(spectralChannels& ch, int n);
 void processAverage(spectralChannels& ch, int n);
-
 void findMaxIntensity(spectralChannels& ch);
-
-void readSensor(DFRobot_AS7341 as7341, spectralChannels& ch);
+void printSpectrum(spectralChannels& ch);

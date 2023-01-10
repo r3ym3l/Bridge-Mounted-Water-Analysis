@@ -1,10 +1,7 @@
-#include <Adafruit_SHT31.h>
+#pragma once
 
+#include <Adafruit_SHT31.h>
 #include <pinout.h>
 
-class TempSensor: public Adafruit_SHT31 {
-
-public:
-    void init();
-    void printTemp();
-};
+void tempInit();
+void printTemp();

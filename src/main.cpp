@@ -1,14 +1,7 @@
 #include "main.h"
 
-DFRobot_AS7341 as7341;
-DistanceSensor ultrasonic = DistanceSensor();
-TempSensor sht30 = TempSensor();
-
-// spectral sensor
-void spectralSetup();
+// sensor tasks
 void spectralTask();
-
-// ultrasonic distance sensor
 void distanceTask();
 
 // miscellaneous functions
@@ -21,7 +14,8 @@ void setup(void)
         delay(10);
 
 	// sensor setups
-	spectralSetup();
+	spectralInit();
+	tempInit();
 }
 
 void loop(void)
@@ -29,22 +23,6 @@ void loop(void)
   	// sensor tasks
 	spectralTask();
 	distanceTask();
-}
-
-void spectralSetup()
-{
-	//Detect if IIC can communicate properly 
-	while (as7341.begin() != 0) {
-		Serial.println("IIC init failed, please check if the wire connection is correct");
-		delay(1000);
-	}
-	//Integration time = (ATIME + 1) x (ASTEP + 1) x 2.78µs
-	//Set the value of register ATIME(1-255), through which the value of Integration time can be calculated. The value represents the time that must be spent during data reading.
-	as7341.setAtime(29);
-	//Set the value of register ASTEP(0-65534), through which the value of Integration time can be calculated. The value represents the time that must be spent during data reading.
-	as7341.setAstep(599);
-	//Set gain value(0~10 corresponds to X0.5,X1,X2,X4,X8,X16,X32,X64,X128,X256,X512)
-	as7341.setAGAIN(7);
 }
 
 void spectralTask()
@@ -55,7 +33,7 @@ void spectralTask()
 	for (int i = 0; i < n; i++)
 	{
 		long int start = millis();
-		readSensor(as7341, ch);
+		printSpectrum(ch);
 		printTime(start);		// replace with RTC to get current time instead of time it takes to read data
 
 		// write data to .csv file
@@ -63,7 +41,7 @@ void spectralTask()
 
   	// can save values in struct ch into .csv and/or
   	// save highest value (channel)
-	processReadings(ch, n);
+	processSpectrum(ch, n);
 
 	Serial.println("");
 	Serial.print("Largest Value: ");
@@ -79,8 +57,8 @@ void spectralTask()
 
 void distanceTask()
 {
-	ultrasonic.printDistance();
-	sht30.printTemp();
+	printDistance();
+	printTemp();
 
     Serial.println("-----");
     delay(1000);
