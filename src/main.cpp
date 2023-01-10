@@ -1,22 +1,30 @@
-#include "sensors/SpectralModule.h"
+#include "main.h"
 
 DFRobot_AS7341 as7341;
+DistanceSensor ultrasonic = DistanceSensor();
 
+// spectral sensor
 void spectralSetup();
 void spectralTask();
+
+// ultrasonic distance sensor
+void distanceTask();
+
+// miscellaneous functions
 void printTime(int time);
 
 void setup(void)
 {
-  Serial.begin(115200);
-  // sensor setups
+	Serial.begin(115200);
+	// sensor setups
 	spectralSetup();
 }
 
 void loop(void)
 {
-  // sensor tasks
+  	// sensor tasks
 	spectralTask();
+	distanceTask();
 }
 
 void spectralSetup()
@@ -37,7 +45,7 @@ void spectralSetup()
 
 void spectralTask()
 {
-  spectralChannels ch;
+  	spectralChannels ch;
 	int n = 10;
 	
 	for (int i = 0; i < n; i++)
@@ -49,8 +57,8 @@ void spectralTask()
 		// write data to .csv file
 	}
 
-  // can save values in struct ch into .csv and/or
-  // save highest value (channel)
+  	// can save values in struct ch into .csv and/or
+  	// save highest value (channel)
 	processReadings(ch, n);
 
 	Serial.println("");
@@ -63,6 +71,12 @@ void spectralTask()
 	Serial.println("Waiting...");
 	Serial.println("");
 	delay(8000);	// delay for 20 seconds after 10 readings then repeat
+}
+
+void distanceTask()
+{
+	ultrasonic.printDistance();
+    delay(1000);
 }
 
 void printTime(int time)
