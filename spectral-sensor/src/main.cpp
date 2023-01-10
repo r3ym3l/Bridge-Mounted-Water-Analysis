@@ -1,12 +1,26 @@
-#include "SpectralModule.h"
+#include "sensors/SpectralModule.h"
 
 DFRobot_AS7341 as7341;
 
+void spectralSetup();
+void spectralTask();
 void printTime(int time);
 
 void setup(void)
 {
-	Serial.begin(115200);
+  Serial.begin(115200);
+  // sensor setups
+	spectralSetup();
+}
+
+void loop(void)
+{
+  // sensor tasks
+	spectralTask();
+}
+
+void spectralSetup()
+{
 	//Detect if IIC can communicate properly 
 	while (as7341.begin() != 0) {
 		Serial.println("IIC init failed, please check if the wire connection is correct");
@@ -19,15 +33,11 @@ void setup(void)
 	as7341.setAstep(599);
 	//Set gain value(0~10 corresponds to X0.5,X1,X2,X4,X8,X16,X32,X64,X128,X256,X512)
 	as7341.setAGAIN(7);
-	//Enable LED
-	//as7341.enableLed(true);
-	//Set pin current to control brightness (1~20 corresponds to current 4mA,6mA,8mA,10mA,12mA,......,42mA)
-	//as7341.controlLed(10);
 }
 
-void loop(void)
+void spectralTask()
 {
-	spectralChannels ch;
+  spectralChannels ch;
 	int n = 10;
 	
 	for (int i = 0; i < n; i++)
@@ -52,7 +62,7 @@ void loop(void)
 
 	Serial.println("Waiting...");
 	Serial.println("");
-	delay(20000);	// delay for 20 seconds after 10 readings then repeat
+	delay(8000);	// delay for 20 seconds after 10 readings then repeat
 }
 
 void printTime(int time)
