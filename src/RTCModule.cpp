@@ -5,13 +5,13 @@ RTC_DS3231 rtc;
 
 // Functions
 bool initializeRTC(){
-  Serial.println("Initializing RTC module...");
+  // serial.println("Initializing RTC module...");
     if (! rtc.begin()) {
-        Serial.println("RTC module initialization failed.");
-        Serial.flush();
+        // serial.println("RTC module initialization failed.");
+        // serial.flush();
         return false;
     }
-    Serial.println("RTC module has initialized successfully.");
+    // serial.println("RTC module has initialized successfully.");
     return true;
 }
 
