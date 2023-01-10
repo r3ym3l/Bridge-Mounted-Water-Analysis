@@ -32,11 +32,20 @@ const char *menuString = R"""(|   Commands    |
 |4: Adjust Time
 )""";
 
-const char *intervalString = R"""(
+const char *intervalMenu = R"""(
 |1: 5 Seconds
 |2: 30 Seconds
 |3: 2 Minutes
 |4: 1 Hour
+)""";
+
+const char *dateTimeMenu = R"""(
+|1: Year
+|2: Month
+|3: Day
+|4: Hour
+|5: Minute
+|6: Second
 )""";
 
 void cmdHandler();
@@ -46,7 +55,6 @@ void setup()
 {
   // Initialize LED pin.
   pinMode(LED_BUILTIN, OUTPUT);
-
   // Initialize Distance Sensor pins.
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
@@ -63,16 +71,6 @@ void setup()
   SDConnected = initializeSD();
   Serial.println("Adding headers to csv file");
   writeToSD(fileNameFormat, "Time (ms),Distance (cm)");
-
-  // while (!card.init(SPI_HALF_SPEED, 12u)) {
-  //   Serial.println("initialization failed. Things to check:");
-  //   Serial.println("* is a card is inserted?");
-  //   Serial.println("* Is your wiring correct?");
-  //   Serial.println("* did you change the chipSelect pin to match your shield or module?");
-  // } 
-
-
-
   RTCConnected = initializeRTC();
   if(RTCConnected)
   {
@@ -169,22 +167,54 @@ void cmdHandler()
             } 
             else
             {
-              Serial.println("SD Card not initialized.");
+              Serial.println("SD card not initialized.");
             }
             break;
           }
           case '3':
           {
             Serial.println('3');
-            Serial.println("Set Sensor Read Interval Time: ");
-            printMultiString(intervalString);
+            Serial.println("Set sensor read interval time: ");
+            printMultiString(intervalMenu);
             state = 3;
             break;
           }
           case '4':
           {
             Serial.println('4');
-            Serial.println("Set the Date and Time using this format... ");
+            uint32_t y;
+            uint8_t m;
+            uint8_t d;
+            uint8_t h;
+            uint8_t min;
+            uint8_t s;
+            Serial.setTimeout(10000);
+            Serial.println("Enter year: ");
+            y = Serial.parseInt();
+            while(!((0 <= y) && (y <= 9999))){
+              Serial.println("Invalid value. Please enter year: ");
+              y = Serial.parseInt();
+            }
+            Serial.println(y);
+            Serial.println("Enter month: ");
+            m = Serial.parseInt();
+            Serial.println(m);
+            Serial.println("Enter day: ");
+            d = Serial.parseInt();
+            Serial.println(d);
+            Serial.println("Enter hour: ");
+            h = Serial.parseInt();
+            Serial.println(h);
+            Serial.println("Enter minute: ");
+            min = Serial.parseInt();
+            Serial.println(min);
+            Serial.println("Enter second: ");
+            s = Serial.parseInt();
+            Serial.println(s);
+            setTime(y,m,d,h,min,s);
+            Serial.println("Date and Time has been set to: ");
+            Serial.println(getTimeString());
+            Serial.setTimeout(1000);
             break;
           }
           default:
@@ -231,7 +261,7 @@ void cmdHandler()
           default:
           {
             Serial.println("Invalid Input. Here Are Your Options: ");
-            printMultiString(intervalString);
+            printMultiString(intervalMenu);
             break;
           }
         }

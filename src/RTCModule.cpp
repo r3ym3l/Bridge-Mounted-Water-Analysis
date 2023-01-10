@@ -21,16 +21,21 @@ String getTimeString()
   String timeString = "";
   timeString += now.year();
   timeString += '/';
-  timeString += (now.month(), DEC);
+  timeString += now.month();
   timeString += '/';
-  timeString += (now.day(), DEC);
+  timeString += now.day();
   timeString += ' ';
-  timeString += (now.hour(), DEC);
+  timeString += now.hour();
   timeString += ':';
-  timeString += (now.minute(), DEC);
+  timeString += now.minute();
   timeString += ':';
-  timeString += (now.second(), DEC);
+  timeString += now.second();
   return timeString;
+}
+
+void setTime(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second)
+{
+  rtc.adjust(DateTime(year, month, day, hour, minute, second));
 }
 
 
