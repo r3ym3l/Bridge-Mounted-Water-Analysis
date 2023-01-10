@@ -2,6 +2,7 @@
 
 DFRobot_AS7341 as7341;
 DistanceSensor ultrasonic = DistanceSensor();
+TempSensor sht30 = TempSensor();
 
 // spectral sensor
 void spectralSetup();
@@ -16,6 +17,9 @@ void printTime(int time);
 void setup(void)
 {
 	Serial.begin(115200);
+	while (!Serial)
+        delay(10);
+
 	// sensor setups
 	spectralSetup();
 }
@@ -76,6 +80,9 @@ void spectralTask()
 void distanceTask()
 {
 	ultrasonic.printDistance();
+	sht30.printTemp();
+
+    Serial.println("-----");
     delay(1000);
 }
 
