@@ -95,8 +95,8 @@ void findMaxIntensity(spectralChannels& ch)
 	}
 }
 
-// print spectral values
-void printSpectrum(spectralChannels& ch)
+// read spectral values
+void readSpectrum(spectralChannels& ch)
 {
 	DFRobot_AS7341::sModeOneData_t data1;
 	DFRobot_AS7341::sModeTwoData_t data2;

@@ -5,7 +5,8 @@
  *
  * @return int The measured distance
  */
-int readDistance() {
+int readDistance() 
+{
     return pulseIn(ULTRASONIC_PIN, HIGH);
 }
 
@@ -14,7 +15,8 @@ int readDistance() {
  * @brief Prints a measurement from the ultrasonic sensor
  * 
  */
-void printDistance() {
+void printDistance() 
+{
     int distance = readDistance();
     Serial.print("dist = ");
     Serial.print(distance);

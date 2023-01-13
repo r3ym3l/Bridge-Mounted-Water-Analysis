@@ -1,3 +1,8 @@
+//
+// !!! WARNING !!! AUTO-GENERATED FILE!
+// PLEASE DO NOT MODIFY IT AND USE "platformio.ini":
+// https://docs.platformio.org/page/projectconf/section_env_build.html#build-flags
+//
 {
     "configurations": [
         {
@@ -55,8 +60,7 @@
                 "C:/Users/ereym/.platformio/packages/framework-arduino-mbed/libraries/mbed-memory-status",
                 "C:/Users/ereym/.platformio/packages/framework-arduino-mbed/libraries/openamp_arduino/src",
                 "C:/Users/ereym/.platformio/packages/framework-arduino-mbed/libraries/rpclib/src",
-                "",
-                "${workspaceFolder}/src"
+                ""
             ],
             "browse": {
                 "limitSymbolsToIncludedHeaders": true,

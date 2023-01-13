@@ -47,10 +47,6 @@ void loop(void)
   // Handle any commands from the user
   // cmdHandler();
 
-  // sensor tasks
-	spectralTask();
-	distanceTask();
-  
   if (!SDConnected){
     if (sdInit())
     {
@@ -59,49 +55,65 @@ void loop(void)
   }
 
   currentMillis = millis();
+  char s[32];
+	
+  // *******************APPLY RTC TO DATA LOG****************
+  // sensor tasks
+	distanceTask();
+  spectralTask();
 
-  if (currentMillis - previousMillis > distanceReadInterval)
-  {
-    Serial.println(distanceReadInterval);
-    // Clears the trigPin condition
-    digitalWrite(TRIG_PIN, LOW);
-    delayMicroseconds(2);
-    // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-    digitalWrite(TRIG_PIN, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TRIG_PIN, LOW);
-    // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(ECHO_PIN, HIGH);
-    // Calculating the distance
-    distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
-    Serial.println(distance);
-    char s[32];
-    snprintf_P(s, sizeof(s), PSTR("%d,%d"), currentMillis, distance);
-    if(!writeToSD(fileNameFormat, s))
-    {
-      SDConnected = false;
-    }
-    previousMillis = currentMillis;
-  }
+  // if (currentMillis - previousMillis > distanceReadInterval)
+  // {
+  //   Serial.println(distanceReadInterval);
+  //   // Clears the trigPin condition
+  //   digitalWrite(TRIG_PIN, LOW);
+  //   delayMicroseconds(2);
+  //   // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
+  //   digitalWrite(TRIG_PIN, HIGH);
+  //   delayMicroseconds(10);
+  //   digitalWrite(TRIG_PIN, LOW);
+  //   // Reads the echoPin, returns the sound wave travel time in microseconds
+  //   duration = pulseIn(ECHO_PIN, HIGH);
+  //   // Calculating the distance
+  //   distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
+  //   Serial.println(distance);
+    
+  //   snprintf_P(s, sizeof(s), PSTR("%d,%d"), currentMillis, distance);
+  //   if(!writeToSD(fileNameFormat, s))
+  //   {
+  //     SDConnected = false;
+  //   }
+  //   // Clearing the array
+  //   s[0] = '\0';
+  //   previousMillis = currentMillis;
+  // }
 }
 
 void spectralTask()
 {
   spectralChannels ch;
 	int n = 10;
+  char s[32];
 	
 	for (int i = 0; i < n; i++)
 	{
 		long int start = millis();
-		printSpectrum(ch);
+		readSpectrum(ch);
 		printTime(start);		// replace with RTC to get current time instead of time it takes to read data
-
-		// write data to .csv file
 	}
 
   // can save values in struct ch into .csv and/or
   // save highest value (channel)
 	processSpectrum(ch, n);
+
+  // place in spectralTask function
+  snprintf_P(s, sizeof(s), PSTR("%d,%d,%d,%d,%d,%d,%d,%d,%d"), currentMillis, ch.f1, ch.f2, ch.f3, ch.f4, ch.f5, ch.f6, ch.f7, ch.f8);
+  if(!writeToSD(fileNameFormat, s))
+  {
+    SDConnected = false;
+  }
+  // Clearing the array
+  s[0] = '\0';
 
 	Serial.println("");
 	Serial.print("Largest Value: ");
@@ -112,16 +124,44 @@ void spectralTask()
 
 	Serial.println("Waiting...");
 	Serial.println("");
-	delay(8000);	// delay for 20 seconds after 10 readings then repeat
+	delay(8000);	// delay for 8 seconds after 10 readings then repeat
 }
 
 void distanceTask()
 {
+  char s[32];
+
 	printDistance();
 	printTemp();
 
-    Serial.println("-----");
-    delay(1000);
+  float temp = readTemp();
+  int dist = readDistance();
+
+  // check interval validity
+
+  // if temp is a valid value, print it in SD
+  if (!isnan(temp))
+  {
+    snprintf_P(s, sizeof(s), PSTR("%d,%d,%.3f"), currentMillis, dist, temp);
+    if(!writeToSD(fileNameFormat, s))
+    {
+      SDConnected = false;
+    }
+  }
+  else 
+  {
+    snprintf_P(s, sizeof(s), PSTR("%d,%d"), currentMillis, dist);
+    if(!writeToSD(fileNameFormat, s))
+    {
+      SDConnected = false;
+    }
+  }
+
+  // Clearing the array
+  s[0] = '\0';
+
+  Serial.println("-----");
+  delay(1000);
 }
 
 void cmdHandler()

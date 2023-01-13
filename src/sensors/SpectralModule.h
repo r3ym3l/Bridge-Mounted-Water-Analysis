@@ -20,4 +20,4 @@ void spectralInit();
 void processSpectrum(spectralChannels& ch, int n);
 void processAverage(spectralChannels& ch, int n);
 void findMaxIntensity(spectralChannels& ch);
-void printSpectrum(spectralChannels& ch);
+void readSpectrum(spectralChannels& ch);

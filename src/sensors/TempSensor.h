@@ -4,4 +4,5 @@
 #include <pinout.h>
 
 void tempInit();
+float readTemp();
 void printTemp();
