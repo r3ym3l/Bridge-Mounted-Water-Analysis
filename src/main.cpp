@@ -57,11 +57,14 @@ void loop(void)
   currentMillis = millis();
   char s[32];
 	
-  // *******************APPLY RTC TO DATA LOG****************
-  // sensor tasks
-	distanceTask();
-  spectralTask();
-
+  if (currentMillis - previousMillis > distanceReadInterval)
+  {
+    // *******************APPLY RTC TO DATA LOG****************
+    // sensor tasks
+    distanceTask();
+    spectralTask();
+    previousMillis = currentMillis;
+  }
   // if (currentMillis - previousMillis > distanceReadInterval)
   // {
   //   Serial.println(distanceReadInterval);
