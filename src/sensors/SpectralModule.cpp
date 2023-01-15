@@ -2,6 +2,8 @@
 
 DFRobot_AS7341 as7341;
 
+bool spectrumProcessed;
+
 void spectralInit() 
 {
     //Detect if IIC can communicate properly 
@@ -16,6 +18,8 @@ void spectralInit()
 	as7341.setAstep(599);
 	//Set gain value(0~10 corresponds to X0.5,X1,X2,X4,X8,X16,X32,X64,X128,X256,X512)
 	as7341.setAGAIN(7);
+
+	spectrumProcessed = false;
 }
 
 // getting the average intensity levels of each channel
@@ -37,9 +41,13 @@ void processAverage(spectralChannels& ch, int n)
 	ch.f6 = ch.f6 / (uint16_t) n;
 	ch.f7 = ch.f7 / (uint16_t) n;
 	ch.f8 = ch.f8 / (uint16_t) n;
+	ch.clear = ch.clear / (uint16_t) n;
+	ch.nir = ch.nir / (uint16_t) n;
 	
 	ch.largestCh = ch.largestCh / n;
 	ch.maxIntensity = ch.maxIntensity / (uint16_t) n;
+
+	spectrumProcessed = true;
 }
 
 // find largest intensity level
@@ -107,43 +115,56 @@ void readSpectrum(spectralChannels& ch)
 	//Read the value of sensor data channel 0~5, under eF1F4ClearNIR
 	data1 = as7341.readSpectralDataOne();
 	
-	Serial.print("F1(405-425nm):");
-	Serial.println(data1.ADF1);
 	ch.f1 = ch.f1 + data1.ADF1;
-
-	Serial.print("F2(435-455nm):");
-	Serial.println(data1.ADF2);
 	ch.f2 = ch.f2 + data1.ADF2;
-
-	Serial.print("F3(470-490nm):");
-	Serial.println(data1.ADF3);
 	ch.f3 = ch.f3 + data1.ADF3;
-
-	Serial.print("F4(505-525nm):");
-	Serial.println(data1.ADF4);
 	ch.f4 = ch.f4 + data1.ADF4;   
 
 	as7341.startMeasure(as7341.eF5F8ClearNIR);
 	//Read the value of sensor data channel 0~5, under eF5F8ClearNIR
 	data2 = as7341.readSpectralDataTwo();
-	Serial.print("F5(545-565nm):");
-	Serial.println(data2.ADF5);
+
 	ch.f5 = ch.f5 + data2.ADF5;
-
-	Serial.print("F6(580-600nm):");
-	Serial.println(data2.ADF6);
 	ch.f6 = ch.f6 + data2.ADF6;
-
-	Serial.print("F7(620-640nm):");
-	Serial.println(data2.ADF7);
 	ch.f7 = ch.f7 + data2.ADF7;
-
-	Serial.print("F8(670-690nm):");
-	Serial.println(data2.ADF8);
 	ch.f8 = ch.f8 + data2.ADF8;
 	
-	Serial.print("Clear:");
-	Serial.println(data2.ADCLEAR);
-	Serial.print("NIR:");
-	Serial.println(data2.ADNIR);
+	ch.clear = ch.clear + data2.ADCLEAR;
+	ch.nir = ch.nir + data2.ADNIR;
+}
+
+// print spectral values
+void printSpectrum(spectralChannels& ch)
+{
+	if (spectrumProcessed)
+	{
+		Serial.print("F1(405-425nm):");
+		Serial.println(ch.f1);
+
+		Serial.print("F2(435-455nm):");
+		Serial.println(ch.f2);
+
+		Serial.print("F3(470-490nm):");
+		Serial.println(ch.f3);
+
+		Serial.print("F4(505-525nm):");
+		Serial.println(ch.f4);   
+
+		Serial.print("F5(545-565nm):");
+		Serial.println(ch.f5);
+
+		Serial.print("F6(580-600nm):");
+		Serial.println(ch.f6);
+
+		Serial.print("F7(620-640nm):");
+		Serial.println(ch.f7);
+
+		Serial.print("F8(670-690nm):");
+		Serial.println(ch.f8);
+		
+		Serial.print("Clear:");
+		Serial.println(ch.clear);
+		Serial.print("NIR:");
+		Serial.println(ch.nir);
+	}
 }

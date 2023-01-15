@@ -22,4 +22,3 @@ void printDistance()
     Serial.print(distance);
     Serial.println(" mm");
 }
-

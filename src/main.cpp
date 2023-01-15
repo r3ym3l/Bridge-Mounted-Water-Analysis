@@ -45,9 +45,10 @@ void setup(void)
 void loop(void)
 {
   // Handle any commands from the user
-  // cmdHandler();
+  cmdHandler();
 
-  if (!SDConnected){
+  if (!SDConnected)
+  {
     if (sdInit())
     {
       SDConnected = true;
@@ -95,7 +96,7 @@ void loop(void)
 void spectralTask()
 {
   spectralChannels ch;
-	int n = 10;
+	int n = 2;
   char s[32];
 	
 	for (int i = 0; i < n; i++)
@@ -108,6 +109,9 @@ void spectralTask()
   // can save values in struct ch into .csv and/or
   // save highest value (channel)
 	processSpectrum(ch, n);
+
+  // will only print when the spectral values has been processed
+  printSpectrum(ch);
 
   // place in spectralTask function
   snprintf_P(s, sizeof(s), PSTR("%d,%d,%d,%d,%d,%d,%d,%d,%d"), currentMillis, ch.f1, ch.f2, ch.f3, ch.f4, ch.f5, ch.f6, ch.f7, ch.f8);
@@ -127,7 +131,7 @@ void spectralTask()
 
 	Serial.println("Waiting...");
 	Serial.println("");
-	delay(8000);	// delay for 8 seconds after 10 readings then repeat
+	// delay(8000);	// delay for 8 seconds after 10 readings then repeat
 }
 
 void distanceTask()
@@ -137,8 +141,8 @@ void distanceTask()
 	printDistance();
 	printTemp();
 
-  float temp = readTemp();
   int dist = readDistance();
+  float temp = readTemp();
 
   // check interval validity
 
@@ -295,7 +299,7 @@ void printMultiString(const char *toPrint)
   std::istringstream iss(toPrint);
   while (std::getline(iss, line))
   {
-    // serial.println(line.c_str());
+    Serial.println(line.c_str());
   }
 }
 

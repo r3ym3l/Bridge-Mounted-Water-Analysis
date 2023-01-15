@@ -10,6 +10,8 @@ struct spectralChannels {
 	uint16_t f6 = 0;
 	uint16_t f7 = 0;
 	uint16_t f8 = 0;
+	uint16_t clear = 0;
+	uint16_t nir = 0;
 	uint16_t maxIntensity = 0;
 	int largestCh;
 	String strCh;
@@ -21,3 +23,4 @@ void processSpectrum(spectralChannels& ch, int n);
 void processAverage(spectralChannels& ch, int n);
 void findMaxIntensity(spectralChannels& ch);
 void readSpectrum(spectralChannels& ch);
+void printSpectrum(spectralChannels& ch);

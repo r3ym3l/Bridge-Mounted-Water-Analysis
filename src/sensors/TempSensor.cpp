@@ -8,7 +8,7 @@ Adafruit_SHT31 sht30;
  */
 void tempInit() 
 {
-    if (!sht30.begin(SHT30_I2C_ADDRESS)) 
+    while (!sht30.begin(SHT30_I2C_ADDRESS)) 
     {
         Serial.println("Couldn't find SHT30");
         while (1) delay(1);
@@ -31,6 +31,7 @@ float readTemp()
 void printTemp() 
 {
     float temp = sht30.readTemperature();
+    
     if (!isnan(temp)) 
     {
         Serial.print("temp = ");
@@ -38,4 +39,3 @@ void printTemp()
         Serial.println(" *C");
     }
 }
-
