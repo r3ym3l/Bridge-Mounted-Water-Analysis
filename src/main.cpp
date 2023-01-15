@@ -311,3 +311,10 @@ void printTime(int time)
 	Serial.println("");
 	delay(1000);
 }
+
+void printString(String toPrint)
+{
+  if (Serial.available() > 0){
+    Serial.println(toPrint);
+  }
+}

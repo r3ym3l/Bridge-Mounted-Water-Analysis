@@ -12,11 +12,11 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug",
-            "executable": "c:/Users/Owner/Documents/GitHub/Bridge-Mounted-Water-Analysis/.pio/build/pico/firmware.elf",
+            "executable": "c:/Users/djdel/OneDrive/Documents/GitHub/Bridge-Mounted-Water-Analysis/.pio/build/pico/firmware.elf",
             "projectEnvName": "pico",
-            "toolchainBinDir": "C:/Users/Owner/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "toolchainBinDir": "C:/Users/djdel/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
-            "svdPath": "C:/Users/Owner/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
+            "svdPath": "C:/Users/djdel/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
             "preLaunchTask": {
                 "type": "PlatformIO",
                 "task": "Pre-Debug"
@@ -26,21 +26,21 @@
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (skip Pre-Debug)",
-            "executable": "c:/Users/Owner/Documents/GitHub/Bridge-Mounted-Water-Analysis/.pio/build/pico/firmware.elf",
+            "executable": "c:/Users/djdel/OneDrive/Documents/GitHub/Bridge-Mounted-Water-Analysis/.pio/build/pico/firmware.elf",
             "projectEnvName": "pico",
-            "toolchainBinDir": "C:/Users/Owner/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "toolchainBinDir": "C:/Users/djdel/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
-            "svdPath": "C:/Users/Owner/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd"
+            "svdPath": "C:/Users/djdel/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd"
         },
         {
             "type": "platformio-debug",
             "request": "launch",
             "name": "PIO Debug (without uploading)",
-            "executable": "c:/Users/Owner/Documents/GitHub/Bridge-Mounted-Water-Analysis/.pio/build/pico/firmware.elf",
+            "executable": "c:/Users/djdel/OneDrive/Documents/GitHub/Bridge-Mounted-Water-Analysis/.pio/build/pico/firmware.elf",
             "projectEnvName": "pico",
-            "toolchainBinDir": "C:/Users/Owner/.platformio/packages/toolchain-gccarmnoneeabi/bin",
+            "toolchainBinDir": "C:/Users/djdel/.platformio/packages/toolchain-gccarmnoneeabi/bin",
             "internalConsoleOptions": "openOnSessionStart",
-            "svdPath": "C:/Users/Owner/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
+            "svdPath": "C:/Users/djdel/.platformio/platforms/raspberrypi/misc/svd/rp2040.svd",
             "loadMode": "manual"
         }
     ]
