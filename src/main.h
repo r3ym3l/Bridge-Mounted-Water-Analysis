@@ -54,3 +54,11 @@ const char *dateTimeMenu = R"""(
 |5: Minute
 |6: Second
 )""";
+
+const char *headerString = 
+"Timestamp, " 
+"Distance (cm), " 
+"Temperature (°C), " 
+"Humidity, " 
+"F1, F2, F3, F4, F5, F6, F7, F8, F9, "
+"Battery Health";
