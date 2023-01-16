@@ -33,19 +33,19 @@ void processSpectrum(spectralChannels& ch, int n)
 // average intensity levels of each channel for "n" readings
 void processAverage(spectralChannels& ch, int n)
 {
-	ch.f1 = ch.f1 / (uint16_t) n;
-	ch.f2 = ch.f2 / (uint16_t) n;
-	ch.f3 = ch.f3 / (uint16_t) n;
-	ch.f4 = ch.f4 / (uint16_t) n;
-	ch.f5 = ch.f5 / (uint16_t) n;
-	ch.f6 = ch.f6 / (uint16_t) n;
-	ch.f7 = ch.f7 / (uint16_t) n;
-	ch.f8 = ch.f8 / (uint16_t) n;
-	ch.clear = ch.clear / (uint16_t) n;
-	ch.nir = ch.nir / (uint16_t) n;
+	ch.f1 = ch.f1 / (int) n;
+	ch.f2 = ch.f2 / (int) n;
+	ch.f3 = ch.f3 / (int) n;
+	ch.f4 = ch.f4 / (int) n;
+	ch.f5 = ch.f5 / (int) n;
+	ch.f6 = ch.f6 / (int) n;
+	ch.f7 = ch.f7 / (int) n;
+	ch.f8 = ch.f8 / (int) n;
+	ch.clear = ch.clear / (int) n;
+	ch.nir = ch.nir / (int) n;
 	
 	ch.largestCh = ch.largestCh / n;
-	ch.maxIntensity = ch.maxIntensity / (uint16_t) n;
+	ch.maxIntensity = ch.maxIntensity / (int) n;
 
 	spectrumProcessed = true;
 }
