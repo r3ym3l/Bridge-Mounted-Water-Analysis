@@ -28,11 +28,15 @@ void setup(void)
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
 
-	if(!(readFileSize(fileNameFormat) > 0))
-	{
-		Serial.println("Adding headers to csv file");
-		writeToSD(fileNameFormat, "Time (ms),Distance (cm)");	// NEEDS UPDATE
-	}
+	// NEEDS FIXING
+	// if(!(readFileSize(fileNameFormat) > 0))
+	// {
+	// 	Serial.println("Adding headers to csv file");
+	// 	writeToSD(fileNameFormat, fileHeader);
+	// }
+
+	Serial.println("Adding headers to csv file");
+	writeToSD(fileNameFormat, fileHeader);
 
 	if(RTCConnected)
 	{

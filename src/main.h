@@ -27,6 +27,7 @@ bool SDConnected;
 bool RTCConnected;
 
 String fileNameFormat = "datalog.csv";
+String fileHeader = "RTC Date (Year-Month-Day Hours:Minutes),Distance (mm),Temperature (Celsius),Blue,Light-Blue,Green-Blue,Green,Yellow,Orange,Pink,Red,Clear,NIR";
 char input;
 int state;
 
