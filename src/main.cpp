@@ -140,7 +140,7 @@ void spectralTask(char* sdLog)
 	printSpectrum(ch);
 
 	// place in spectralTask function
-	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%d,%d,%d,%d,%d,%d,%d,%d,%d"), ch.f1, ch.f2, ch.f3, ch.f4, ch.f5, ch.f6, ch.f7, ch.f8, ch.clear, ch.nir);
+	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%d,%d,%d,%d,%d,%d,%d,%d"), ch.f1, ch.f2, ch.f3, ch.f4, ch.f5, ch.f6, ch.f7, ch.f8, ch.nir);
 	strncat(sdLog, tempString, strlen(tempString));
 
     Serial.print("Largest Value: ");
