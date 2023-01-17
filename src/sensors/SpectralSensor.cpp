@@ -1,4 +1,4 @@
-#include "SpectralModule.h"
+#include "SpectralSensor.h"
 
 DFRobot_AS7341 as7341;
 

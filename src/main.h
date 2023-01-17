@@ -2,7 +2,6 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-#include "PinHeader.h"
 
 #include <vector>
 #include <string>
@@ -10,11 +9,11 @@
 #include <iostream>
 
 // sensors
-#include "sensors/SpectralModule.h"
+#include "sensors/SpectralSensor.h"
 #include "sensors/DistanceSensor.h"
 #include "sensors/TempSensor.h"
-#include "sensors/RTCModule.h"
-#include "sensors/SDModule.h"
+#include "modules/RTCModule.h"
+#include "modules/SDModule.h"
 
 long duration;
 int distance;
@@ -63,3 +62,11 @@ const char *headerString =
 "Humidity, " 
 "F1, F2, F3, F4, F5, F6, F7, F8, F9, "
 "Battery Health";
+
+enum {
+    setDistanceInterval = 0,
+    setSpectralInterval,
+    setTimeDate,
+    toggleDistance,
+    toggleSpectral
+} commands;

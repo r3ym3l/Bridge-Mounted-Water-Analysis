@@ -16,12 +16,6 @@ void setup(void)
     while (!Serial)
     delay(10);
 
-	// Initialize LED pin.
-	pinMode(LED_BUILTIN, OUTPUT);
-	// Initialize Distance Sensor pins.
-	pinMode(TRIG_PIN, OUTPUT);
-	pinMode(ECHO_PIN, INPUT);
-
 	// sensor setups
 	spectralInit();
 	tempInit();
