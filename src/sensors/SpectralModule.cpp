@@ -86,6 +86,10 @@ void readSensor(DFRobot_AS7341 as7341, spectralChannels& ch)
 	//Start spectrum measurement 
 	//Channel mapping mode: 1.eF1F4ClearNIR,2.eF5F8ClearNIR
 	as7341.startMeasure(as7341.eF1F4ClearNIR);
+
+	//Put the sensor into measurement mode by gpio pulse 
+  	while(!as7341.measureComplete());
+	
 	//Read the value of sensor data channel 0~5, under eF1F4ClearNIR
 	data1 = as7341.readSpectralDataOne();
 	
@@ -107,6 +111,10 @@ void readSensor(DFRobot_AS7341 as7341, spectralChannels& ch)
 
 	as7341.startMeasure(as7341.eF5F8ClearNIR);
 	//Read the value of sensor data channel 0~5, under eF5F8ClearNIR
+
+	//Put the sensor into measurement mode by gpio pulse 
+  	while(!as7341.measureComplete());
+
 	data2 = as7341.readSpectralDataTwo();
 	Serial.print("F5(545-565nm):");
 	Serial.println(data2.ADF5);

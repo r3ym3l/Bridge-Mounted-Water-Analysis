@@ -8,21 +8,21 @@ void printTime(int time);
 
 void setup(void)
 {
-  Serial.begin(115200);
-  // sensor setups
+  	Serial.begin(115200);
+  	// sensor setups
 	spectralSetup();
 }
 
 void loop(void)
 {
-  // sensor tasks
+  	// sensor tasks
 	spectralTask();
 }
 
 void spectralSetup()
 {
 	//Detect if IIC can communicate properly 
-	while (as7341.begin() != 0) {
+	while (as7341.begin(as7341.eSyns) != 0) {
 		Serial.println("IIC init failed, please check if the wire connection is correct");
 		delay(1000);
 	}
@@ -33,24 +33,21 @@ void spectralSetup()
 	as7341.setAstep(599);
 	//Set gain value(0~10 corresponds to X0.5,X1,X2,X4,X8,X16,X32,X64,X128,X256,X512)
 	as7341.setAGAIN(7);
+	as7341.startMeasure(as7341.eF1F4ClearNIR);
 }
 
 void spectralTask()
 {
-  spectralChannels ch;
+  	spectralChannels ch;
 	int n = 10;
-	
+
 	for (int i = 0; i < n; i++)
 	{
-		long int start = millis();
 		readSensor(as7341, ch);
-		printTime(start);		// replace with RTC to get current time instead of time it takes to read data
-
-		// write data to .csv file
 	}
 
-  // can save values in struct ch into .csv and/or
-  // save highest value (channel)
+  	// can save values in struct ch into .csv and/or
+  	// save highest value (channel)
 	processReadings(ch, n);
 
 	Serial.println("");
@@ -62,7 +59,7 @@ void spectralTask()
 
 	Serial.println("Waiting...");
 	Serial.println("");
-	delay(8000);	// delay for 20 seconds after 10 readings then repeat
+	delay(1000);	// delay for 1 seconds after 10 readings then repeat
 }
 
 void printTime(int time)
