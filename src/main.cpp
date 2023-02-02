@@ -1,259 +1,295 @@
-#include <Arduino.h>
-#include "PinHeader.h"
-#include <SPI.h>
-#include <vector>
-#include <string>
-#include "Wire.h"
-#include "RTCModule.h"
-#include "SDModule.h"
-#include <sstream>
-#include <iostream>
+#include "main.h"
 
-long duration;
-int distance;
+// sensor tasks
+void distanceTask(char* sdLog);
+void tempTask(char* sdLog);
+void spectralTask(char* sdLog);
 
-unsigned long previousMillis = 0UL;
-unsigned long distanceReadInterval = 2000UL;
-unsigned long currentMillis = 0;
-
-bool SDConnected;
-bool RTCConnected;
-
-String fileNameFormat = "datalog.csv";
-char input;
-int state;
-
-const char *menuString = R"""(|   Commands    |
-|h: Print commands menu
-|0: Toggle Sensor On or Off
-|1: Print Date and Time
-|2: Print Card Information
-|3: Set Interval
-|4: Adjust Time
-)""";
-
-const char *intervalString = R"""(
-|1: 5 Seconds
-|2: 30 Seconds
-|3: 2 Minutes
-|4: 1 Hour
-)""";
-
+// miscellaneous functions
 void cmdHandler();
 void printMultiString(const char* toPrint);
+void printTime(int time);
 
-void setup()
+void setup(void)
 {
-  // Initialize LED pin.
-  pinMode(LED_BUILTIN, OUTPUT);
+    Serial.begin(115200);
+    while (!Serial)
+    delay(10);
 
-  // Initialize Distance Sensor pins.
-  pinMode(TRIG_PIN, OUTPUT);
-  pinMode(ECHO_PIN, INPUT);
+	// sensor setups
+	spectralInit();
+	tempInit();
+	SDConnected = sdInit();
+	RTCConnected = rtcInit();
 
-  // Initialize // serial comms.
-  //// serial.begin(96000);
-  // while (!// serial)
-  // {
-  //   ; // Allow // serial to initialize
-  // }
-  delay(500);
-  // serial.println("// serial has initialized...");
+	// NEEDS FIXING
+	// if(!(readFileSize(fileNameFormat) > 0))
+	// {
+	// 	Serial.println("Adding headers to csv file");
+	// 	writeToSD(fileNameFormat, fileHeader);
+	// }
 
-  SDConnected = initializeSD();
-  if(!(readFileSize(fileNameFormat) > 0))
-  {
-    // // serial.println("Adding headers to csv file");
-    writeToSD(fileNameFormat, "Time (ms),Distance (cm)");
-  }
+	Serial.println("Adding headers to csv file");
+	writeToSD(fileNameFormat, fileHeader);
 
-  // while (!card.init(SPI_HALF_SPEED, 12u)) {
-  //   // serial.println("initialization failed. Things to check:");
-  //   // serial.println("* is a card is inserted?");
-  //   // serial.println("* Is your wiring correct?");
-  //   // serial.println("* did you change the chipSelect pin to match your shield or module?");
-  // } 
-
-
-
-  RTCConnected = initializeRTC();
-  if(RTCConnected)
-  {
-    // // serial.print("Date and Time is:");
-    // // serial.println(getTimeString());
-  }
-  state = 0;
-  printMultiString(menuString);
+	if(RTCConnected)
+	{
+		Serial.print("Date and Time is: ");
+		Serial.println(getTimeString());
+	}
+	state = 0;
+	printMultiString(menuString);
 }
 
-// the loop routine runs over and over again forever:
-void loop()
+void loop(void)
 {
-  // Handle any commands from the user
-  //cmdHandler();
-  
-  if(!SDConnected){
-    if(initializeSD())
-    {
-      SDConnected = true;
-    }
-  }
+	// Handle any commands from the user
+	Serial.println("");
+	cmdHandler();
 
-  currentMillis = millis();
+	if (!SDConnected)
+	{
+		if (sdInit())
+		{
+			SDConnected = true;
+			Serial.println("SD card is connected.");
+		}
+	}
 
-  if (currentMillis - previousMillis > distanceReadInterval)
-  {
-    // // serial.println(distanceReadInterval);
-    // Clears the trigPin condition
-    digitalWrite(TRIG_PIN, LOW);
-    delayMicroseconds(2);
-    // Sets the trigPin HIGH (ACTIVE) for 10 microseconds
-    digitalWrite(TRIG_PIN, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TRIG_PIN, LOW);
-    // Reads the echoPin, returns the sound wave travel time in microseconds
-    duration = pulseIn(ECHO_PIN, HIGH);
-    // Calculating the distance
-    distance = duration * 0.034 / 2; // Speed of sound wave divided by 2 (go and back)
-    // // serial.println(distance);
-    char s[32];
-    snprintf_P(s, sizeof(s), PSTR("%d,%d"), currentMillis, distance);
-    if(!writeToSD(fileNameFormat, s))
-    {
-      SDConnected = false;
-    }
-    previousMillis = currentMillis;
-  }
+	currentMillis = millis();
+	char sdLog[100];
+
+	String rtcString = getTimeString();
+	rtcString.toCharArray(sdLog, rtcString.length()+1);
+	
+	Serial.println("");
+	// NEEDS UPDATE:
+	// Do we need these read intervals? 
+	// Current code still writes to SD with only RTC value due to the conditions not being met below
+	if (currentMillis - previousMillis > distanceReadInterval)
+	{
+		// sensor tasks
+		distanceTask(sdLog);
+		tempTask(sdLog);
+		spectralTask(sdLog);
+		previousMillis = currentMillis;
+	}
+
+	Serial.println("String logged into SD card:");
+	Serial.println(sdLog);
+
+	// NEEDS UPDATE:
+	// How often should we write to SD
+	// Current code currently writes often to SD (everytime loop resets)
+	if(!writeToSD(fileNameFormat, sdLog))
+	{
+		SDConnected = false;
+	}
+
+	// Clearing the array
+  	sdLog[0] = '\0';
 }
 
-// void cmdHandler()
-// {
-//   if (Serial.available() > 0)
-//   {
-//     char input = // serial.read();
-//     switch (state)
-//     {
-//       case 0:
-//       {
-//         switch (input)
-//         {
-//           case 'h':
-//           case 'H':
-//           {
-//             // serial.println('h');
-//             printMultiString(menuString);
-//             break;
-//           }
-//           case '0':
-//           {
-//             // serial.println('0');
-//             // serial.println("Which sensor would you like to toggle?... ");
-//             break;
-//           }
-//           case '1':
-//           {
-//             // serial.println('1');
-//             if(RTCConnected){
-//               // serial.print("Date and Time is: ");
-//               // serial.println(getTimeString());
-//             }
-//             else
-//             {
-//               // serial.println("RTC Module not initialized.");
-//             }
-//             break;
-//           }
-//           case '2':
-//           {
-//             if(SDConnected)
-//             {
-//               // serial.println('2');
-//               printFiles();
-//             } 
-//             else
-//             {
-//               // serial.println("SD Card not initialized.");
-//             }
-//             break;
-//           }
-//           case '3':
-//           {
-//             // serial.println('3');
-//             // serial.println("Set Sensor Read Interval Time: ");
-//             printMultiString(intervalString);
-//             state = 3;
-//             break;
-//           }
-//           case '4':
-//           {
-//             // serial.println('4');
-//             // serial.println("Set the Date and Time using this format... ");
-//             break;
-//           }
-//           default:
-//           {
-//             // serial.println("Unkown command, press h to view all commands. ");
-//             break;
-//           }
-//         }
-//         break;
-//       }
-//       // State 3, Set Interval Time
-//       case 3:
-//       {
-//         switch(input)
-//         {
-//           case '1':
-//           {
-//             // serial.println("Interval Set to: 5 Seconds");
-//             distanceReadInterval = 5000UL;
-//             state = 0;
-//             break;
-//           }
-//           case '2':
-//           {
-//             // serial.println("Interval Set to: 30 Seconds");
-//             distanceReadInterval = 30000UL;
-//             state = 0;
-//             break;
-//           }
-//           case '3':
-//           {
-//             // serial.println("Interval Set to: 2 Minutes");
-//             distanceReadInterval = 120000UL;
-//             state = 0;
-//             break;
-//           }
-//           case '4':
-//           {
-//             // serial.println("Interval Set to: 5 Seconds");
-//             distanceReadInterval = 3600000UL;
-//             state = 0;
-//             break;
-//           }
-//           default:
-//           {
-//             // serial.println("Invalid Input. Here Are Your Options: ");
-//             printMultiString(intervalString);
-//             break;
-//           }
-//         }
-//         break;
-//       }
-//       default:
-//       {
-//         break;
-//       }
-//     }
-//   }
-// }
+void distanceTask(char* sdLog)
+{
+	char tempString[50];
+	int dist = readDistance();
+	
+	Serial.println("Ultrasonic Distance Sensor:");
+	printDistance();
+	Serial.println("");
+
+	snprintf_P(tempString, sizeof(tempString), PSTR(",%d"), dist);
+	strncat(sdLog, tempString, strlen(tempString));
+}
+
+void tempTask(char* sdLog)
+{
+	char tempString[50];
+	Serial.println("Temperature Sensor:");
+	printTemp();
+	Serial.println("");
+
+	float temp = readTemp();
+
+	// if temp is a valid value, log it in SD
+	if (!isnan(temp))
+	{
+		snprintf_P(tempString, sizeof(tempString), PSTR(",%.3f"), temp);
+		strncat(sdLog, tempString, strlen(tempString));
+	}
+}
+
+void spectralTask(char* sdLog)
+{
+	spectralChannels ch;
+	int n = 2;
+	char tempString[100];
+
+    for (int i = 0; i < n; i++)
+    {
+        readSpectrum(ch);
+    }
+
+	// can save values in struct ch into .csv and/or
+	// save highest value (channel)
+	processSpectrum(ch, n);
+
+	// will only print when the spectral values has been processed
+	Serial.println("Spectral Sensor:");
+	printSpectrum(ch);
+
+	// place in spectralTask function
+	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%d,%d,%d,%d,%d,%d,%d,%d"), ch.f1, ch.f2, ch.f3, ch.f4, ch.f5, ch.f6, ch.f7, ch.f8, ch.nir);
+	strncat(sdLog, tempString, strlen(tempString));
+
+    Serial.print("Largest Value: ");
+    Serial.print(ch.maxIntensity);
+    Serial.print(" at channel F");
+    Serial.println(ch.largestCh);
+    Serial.println("--------------------------------------");
+
+    Serial.println("");
+    // delay(8000);	// delay for 8 seconds after 10 readings then repeat
+}
+
+void cmdHandler()
+{
+	if (Serial.available() > 0)
+	{
+		char input = Serial.read();
+		switch (state)
+		{
+			case 0:
+			{
+				switch (input)
+				{
+					case 'h':
+					case 'H':
+					{
+						Serial.println('h');
+						printMultiString(menuString);
+						break;
+					}
+					case '0':
+					{
+						Serial.println('0');
+						Serial.println("Which sensor would you like to toggle?... ");
+						break;
+					}
+					case '1':
+					{
+						Serial.println('1');
+						if(RTCConnected)
+						{
+							Serial.print("Date and Time is: ");
+							Serial.println(getTimeString());
+						}
+						else
+						{
+							Serial.println("RTC Module not initialized.");
+						}
+						break;
+					}
+					case '2':
+					{
+						if(SDConnected)
+						{
+							Serial.println('2');
+							printFiles();
+						}
+						else
+						{
+							Serial.println("SD Card not initialized.");
+						}
+						break;
+					}
+					case '3':
+					{
+						Serial.println('3');
+						Serial.println("Set Sensor Read Interval Time: ");
+						printMultiString(intervalString);
+						state = 3;
+						break;
+					}
+					case '4':
+					{
+						Serial.println('4');
+						Serial.println("Set the Date and Time using this format... ");
+						break;
+					}
+					default:
+					{
+						Serial.println("Unkown command, press h to view all commands. ");
+						break;
+					}
+				}
+				break;
+			}
+			// State 3, Set Interval Time
+			case 3:
+			{
+				switch(input)
+				{
+					case '1':
+					{
+						Serial.println("Interval Set to: 5 Seconds");
+						distanceReadInterval = 5000UL;
+						state = 0;
+						break;
+					}
+					case '2':
+					{
+						Serial.println("Interval Set to: 30 Seconds");
+						distanceReadInterval = 30000UL;
+						state = 0;
+						break;
+					}
+					case '3':
+					{
+						Serial.println("Interval Set to: 2 Minutes");
+						distanceReadInterval = 120000UL;
+						state = 0;
+						break;
+					}
+					case '4':
+					{
+						Serial.println("Interval Set to: 5 Seconds");
+						distanceReadInterval = 3600000UL;
+						state = 0;
+						break;
+					}
+					default:
+					{
+						Serial.println("Invalid Input. Here Are Your Options: ");
+						printMultiString(intervalString);
+						break;
+					}
+				}
+				break;
+			}
+		
+			default:
+			{
+				break;
+			}
+		}
+	}
+}
 
 void printMultiString(const char *toPrint)
 {
-  std::string line;
-  std::istringstream iss(toPrint);
-  while (std::getline(iss, line))
-  {
-    // serial.println(line.c_str());
-  }
+	std::string line;
+	std::istringstream iss(toPrint);
+	while (std::getline(iss, line))
+	{
+		Serial.println(line.c_str());
+	}
+}
+
+void printString(String toPrint)
+{
+	if (Serial.available() > 0){
+		Serial.println(toPrint);
+	}
 }
