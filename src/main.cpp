@@ -22,7 +22,7 @@ void loop(void)
 void spectralSetup()
 {
 	//Detect if IIC can communicate properly 
-	while (as7341.begin(as7341.eSyns) != 0) {
+	while (as7341.begin() != 0) {
 		Serial.println("IIC init failed, please check if the wire connection is correct");
 		delay(1000);
 	}
@@ -43,23 +43,19 @@ void spectralTask()
 
 	for (int i = 0; i < n; i++)
 	{
-		readSensor(as7341, ch);
+		readSpectra(as7341, ch);
 	}
 
   	// can save values in struct ch into .csv and/or
   	// save highest value (channel)
 	processReadings(ch, n);
+	printSpectra(ch);
 
-	Serial.println("");
-	Serial.print("Largest Value: ");
-	Serial.print(ch.maxIntensity);
-	Serial.print(" at channel F");
-	Serial.println(ch.largestCh);
 	Serial.println("--------------------------------------");
 
 	Serial.println("Waiting...");
 	Serial.println("");
-	delay(1000);	// delay for 1 seconds after 10 readings then repeat
+	delay(3000);	// delay for 3 seconds after n readings then repeat
 }
 
 void printTime(int time)

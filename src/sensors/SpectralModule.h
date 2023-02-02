@@ -8,17 +8,12 @@ struct spectralChannels {
 	uint16_t f5 = 0;
 	uint16_t f6 = 0;
 	uint16_t f7 = 0;
-	uint16_t f8 = 0;
-	uint16_t maxIntensity = 0;
-	int largestCh;
-	String strCh;
-	int fCount[8];
+	float f8 = 0;
+	float nir = 0;
 };
 
 void processReadings(spectralChannels& ch, int n);
-
+void turbidityNorm(spectralChannels& ch);
 void processAverage(spectralChannels& ch, int n);
-
-void findMaxIntensity(spectralChannels& ch);
-
-void readSensor(DFRobot_AS7341 as7341, spectralChannels& ch);
+void readSpectra(DFRobot_AS7341 as7341, spectralChannels& ch);
+void printSpectra(spectralChannels& ch);
