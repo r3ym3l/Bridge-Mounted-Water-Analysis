@@ -143,14 +143,12 @@ void spectralTask(char* sdLog)
 	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%d,%d,%d,%d,%d,%d,%d,%d"), ch.f1, ch.f2, ch.f3, ch.f4, ch.f5, ch.f6, ch.f7, ch.f8, ch.nir);
 	strncat(sdLog, tempString, strlen(tempString));
 
-    Serial.print("Largest Value: ");
-    Serial.print(ch.maxIntensity);
-    Serial.print(" at channel F");
-    Serial.println(ch.largestCh);
+
     Serial.println("--------------------------------------");
 
-    Serial.println("");
-    // delay(8000);	// delay for 8 seconds after 10 readings then repeat
+	Serial.println("Waiting...");
+	Serial.println("");
+    delay(3000);	// delay for 8 seconds after 10 readings then repeat
 }
 
 void cmdHandler()
