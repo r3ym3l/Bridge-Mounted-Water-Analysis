@@ -73,21 +73,20 @@ void loop(void)
 		tempTask(sdLog);
 		spectralTask(sdLog);
 		previousMillis = currentMillis;
+
+		// Write to log to SD card
+		if(!writeToSD(fileNameFormat, sdLog))
+		{
+			SDConnected = false;
+		}
+		else
+		{
+			Serial.println("String logged into SD card:");
+			Serial.println(sdLog);
+		}
+		// Clearing the array
+		sdLog[0] = '\0';
 	}
-
-	Serial.println("String logged into SD card:");
-	Serial.println(sdLog);
-
-	// NEEDS UPDATE:
-	// How often should we write to SD
-	// Current code currently writes often to SD (everytime loop resets)
-	if(!writeToSD(fileNameFormat, sdLog))
-	{
-		SDConnected = false;
-	}
-
-	// Clearing the array
-  	sdLog[0] = '\0';
 }
 
 void distanceTask(char* sdLog)
