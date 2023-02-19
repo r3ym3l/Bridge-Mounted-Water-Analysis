@@ -8,9 +8,16 @@ void processReadings(spectralChannels& ch, int n)
 	turbidityNorm(ch);
 }
 
-// normalizing spectra (700-900nm) to correct for skylight reflection
+// normalizing spectra to correct for skylight reflection
 void turbidityNorm(spectralChannels& ch)
 {
+	ch.f1 = ch.f8 / (float) ch.f4;
+	ch.f2 = ch.f8 / (float) ch.f4;
+	ch.f3 = ch.f8 / (float) ch.f4;
+	ch.f4 = ch.f8 / (float) ch.f4;
+	ch.f5 = ch.f8 / (float) ch.f4;
+	ch.f6 = ch.f8 / (float) ch.f4;
+	ch.f7 = ch.f8 / (float) ch.f4;
 	ch.f8 = ch.f8 / (float) ch.f4;
 	ch.nir = ch.nir / (float) ch.f4;
 }
