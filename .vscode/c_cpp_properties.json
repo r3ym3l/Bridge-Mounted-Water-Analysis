@@ -10,6 +10,7 @@
             "includePath": [
                 "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/include",
                 "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/src",
+                "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/Blues Wireless Notecard/src",
                 "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/Adafruit SleepyDog Library",
                 "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/Adafruit SleepyDog Library/utility",
                 "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/DFRobot_AS7341",
@@ -63,6 +64,7 @@
                 "path": [
                     "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/include",
                     "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/src",
+                    "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/Blues Wireless Notecard/src",
                     "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/Adafruit SleepyDog Library",
                     "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/Adafruit SleepyDog Library/utility",
                     "e:/School/Classes Undone/ECE 4600/Bridge-Mounted-Water-Analysis/.pio/libdeps/pico/DFRobot_AS7341",
