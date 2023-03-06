@@ -148,7 +148,7 @@ void datalog(spectralChannels ch)
 {
 	// Add a binary data structure to the simulation
     struct myBinaryPayload binaryData;
-	binaryData.timestamp = "2023-01-16 17:40";
+	binaryData.timestamp = "2023-03-06 17:00";
 	binaryData.distance = 1000;
 	binaryData.temperature = 23.87;
 	binaryData.ch = ch;
@@ -184,5 +184,5 @@ void datalog(spectralChannels ch)
 
 	Serial.println("Waiting to connect to Notehub...");
     // Delay until the notecard connects to notehub
-    delay(60*1000);    // 5 seconds
+    delay(15*1000);    // 5 seconds
 }
