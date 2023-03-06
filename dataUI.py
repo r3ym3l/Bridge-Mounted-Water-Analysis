@@ -2,6 +2,7 @@ import pandas as pd
 import csv
 import matplotlib.pyplot as mp
 # getting data from notehub
+import datetime
 import json
 import requests
 
@@ -72,11 +73,14 @@ def extract_json_from_notehub():
     return event_response.json()
 
 def process_json_to_csv(data_json: dict):
+    curr_date = datetime.datetime.now().isoformat()
     # filter events to only the data we need
     data_list = []
     for i in data_json["events"]:
         if i["file"] == "sensors.qo":
-            data_list.append(i)
+            log_time = i["body"]["Timestamp"]
+            if log_time[0:10] == curr_date[0:10]:
+                data_list.append(i)
 
     filtered_data_json = {"events":data_list}
 
@@ -103,8 +107,8 @@ def process_json_to_csv(data_json: dict):
     
     data_file.close()
 
-data_json = extract_json_from_notehub()
-process_json_to_csv(data_json)
+# data_json = extract_json_from_notehub()
+# process_json_to_csv(data_json)
 
 # spectral_ui()
 # distance_ui()
