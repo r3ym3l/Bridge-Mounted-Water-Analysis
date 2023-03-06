@@ -1,24 +1,21 @@
-#include "sensors/SpectralModule.h"
-
-#include <Notecard.h>
-#include <Wire.h>
-
-#include <stdlib.h>
-
-// This is the unique Product Identifier for your device
-#ifndef PRODUCT_UID
-#define PRODUCT_UID "com.gmail.ereymel1:bmwam"		// "com.my-company.my-name:my-project"
-#pragma message "PRODUCT_UID is not defined in this example. Please ensure your Notecard has a product identifier set before running this example or define it in code here. More details at https://dev.blues.io/tools-and-sdks/samples/product-uid"
-#endif
-
-#define myProductID PRODUCT_UID
+#include "main.h"
 
 DFRobot_AS7341 as7341;
 Notecard notecard;
 
+// A sample binary object, just for binary payload simulation
+struct myBinaryPayload {
+    char *timestamp;
+	int distance;
+	spectralChannels ch;
+    int temperature;
+	int batteryInfo;
+};
+
 void spectralSetup();
 void cellularSetup();
-void spectralTask();
+spectralChannels spectralTask();
+void datalog(spectralChannels ch);
 
 void setup(void)
 {
@@ -27,13 +24,14 @@ void setup(void)
 	spectralSetup();
 	// module setups
 	cellularSetup();
-	
 }
 
 void loop(void)
 {
   	// sensor tasks
-	spectralTask();
+	spectralChannels ch = spectralTask();
+
+	datalog(ch);
 }
 
 void spectralSetup()
@@ -70,7 +68,8 @@ void cellularSetup()
         JAddStringToObject(req, "product", myProductID);
     }
     // This command determines how often the Notecard connects to the service.
-    JAddStringToObject(req, "mode", "periodic");
+    // JAddStringToObject(req, "mode", "continuous");
+	JAddStringToObject(req, "mode", "periodic");
     JAddNumberToObject(req, "outbound", 5);
 
     // Issue the request, telling the Notecard how and how often to access the service.
@@ -82,9 +81,47 @@ void cellularSetup()
     // Note that NoteRequest() always uses free() to release the request data structure, and it
     // returns "true" if success and "false" if there is any failure.
     notecard.sendRequest(req);
+
+	// Create a template note that we will register.  This template note will look "similar" to
+    // the notes that will later be added with note.add, in that the data types are used to
+    // intuit what the ultimate field data types will be, and their maximum length.
+    req = notecard.newRequest("note.add");
+    if (req != NULL) {
+
+        // Create the body for a template that will be used to send notes below
+        J *body = JCreateObject();
+        if (body != NULL) {
+
+            // Define the JSON template
+            JAddStringToObject(body, "Timestamp", "AAAAAAAAAAAAAAAA");   	// maximum string length
+            JAddNumberToObject(body, "Distance(mm)", 1);          			// integer
+            JAddNumberToObject(body, "Temperature(Celsius)", 1.1);       	// floating point (double)
+			JAddNumberToObject(body, "F1(405-425nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "F2(435-455nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "F3(470-490nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "F4(505-525nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "F5(545-565nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "F6(580-600nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "F7(620-640nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "F8(670-690nm)", 1.1);       			// floating point (double)
+			JAddNumberToObject(body, "NIR(900nm)", 1.1);       				// floating point (double)
+            JAddNumberToObject(body, "Battery Information (Pending)", 1);	// integer
+
+            // Add the body to the request
+            JAddItemToObject(req, "body", body);
+        }
+
+        // Create a template of the payload that will be used to send notes below
+        JAddNumberToObject(req, "length", sizeof(myBinaryPayload));
+
+        // Register the template in the output queue notefile
+        JAddStringToObject(req, "file", "sensors.qo");
+        JAddBoolToObject(req, "template", true);
+        notecard.sendRequest(req);
+    }
 }
 
-void spectralTask()
+spectralChannels spectralTask()
 {
   	spectralChannels ch;
 	int n = 10;
@@ -101,9 +138,21 @@ void spectralTask()
 
 	Serial.println("--------------------------------------");
 
-	Serial.println("Waiting...");
 	Serial.println("");
 	delay(3000);	// delay for 3 seconds after n readings then repeat
+
+	return ch;
+}
+
+void datalog(spectralChannels ch)
+{
+	// Add a binary data structure to the simulation
+    struct myBinaryPayload binaryData;
+	binaryData.timestamp = "2023-01-16 17:40";
+	binaryData.distance = 1000;
+	binaryData.temperature = 23.87;
+	binaryData.ch = ch;
+	binaryData.batteryInfo = 1;
 
     // Enqueue the measurement to the Notecard for transmission to the Notehub
     J *req = notecard.newRequest("note.add");
@@ -111,21 +160,29 @@ void spectralTask()
         JAddStringToObject(req, "file", "sensors.qo");
 		JAddBoolToObject(req, "sync", true);
         J *body = JCreateObject();
-        if (body != NULL) {
-            JAddNumberToObject(body, "f1", ch.f1);
-            JAddNumberToObject(body, "f2", ch.f2);
-			JAddNumberToObject(body, "f3", ch.f3);
-			JAddNumberToObject(body, "f4", ch.f4);
-			JAddNumberToObject(body, "f5", ch.f5);
-			JAddNumberToObject(body, "f6", ch.f6);
-			JAddNumberToObject(body, "f7", ch.f7);
-			JAddNumberToObject(body, "f8", ch.f8);
-			JAddNumberToObject(body, "nir", ch.nir);
+        if (body) {
+            JAddStringToObject(body, "Timestamp", "2023-01-16 17:40");   	// maximum string length
+            JAddNumberToObject(body, "Distance(mm)", 1000);          		// integer
+            JAddNumberToObject(body, "Temperature(Celsius)", 23.87);       	// floating point (double)
+			JAddNumberToObject(body, "F1(405-425nm)", ch.f1);       		// floating point (double)
+			JAddNumberToObject(body, "F2(435-455nm)", ch.f2);       		// floating point (double)
+			JAddNumberToObject(body, "F3(470-490nm)", ch.f3);       		// floating point (double)
+			JAddNumberToObject(body, "F4(505-525nm)", ch.f4);      			// floating point (double)
+			JAddNumberToObject(body, "F5(545-565nm)", ch.f5);      			// floating point (double)
+			JAddNumberToObject(body, "F6(580-600nm)", ch.f6);      			// floating point (double)
+			JAddNumberToObject(body, "F7(620-640nm)", ch.f7);      			// floating point (double)
+			JAddNumberToObject(body, "F8(670-690nm)", ch.f8);      			// floating point (double)
+			JAddNumberToObject(body, "NIR(900nm)", ch.nir);     			// floating point (double)
+            JAddNumberToObject(body, "Battery Information (Pending)", 1);	// integer
+
+            // Add the body to the request
             JAddItemToObject(req, "body", body);
         }
+		JAddBinaryToObject(req, "payload", &binaryData, sizeof(binaryData));
         notecard.sendRequest(req);
     }
 
-    // Delay between measurements
-    delay(5*1000);    // 5 seconds
+	Serial.println("Waiting to connect to Notehub...");
+    // Delay until the notecard connects to notehub
+    delay(60*1000);    // 5 seconds
 }
