@@ -9,7 +9,7 @@ import requests
 def spectral_ui():
     df = pd.read_csv('DATALOG.csv')
     list_of_column_names = list(df.columns)
-    data = pd.DataFrame({'Wavelength (nm)':list_of_column_names[3:12]})
+    data = pd.DataFrame({'Wavelength (nm)':list_of_column_names[2:11]})
     data.to_csv('spectral_data.csv', index = False)
  
     # Open file
@@ -26,8 +26,8 @@ def spectral_ui():
         # Iterate over each row in the csv file 
         # using reader object
         for row in reader_obj:
-            col_name = row[0]
-            data[col_name] = row[3:12]
+            col_name = row[-1]
+            data[col_name] = row[2:11]
             data.to_csv('spectral_data.csv') 
 
         df = pd.read_csv('spectral_data.csv')
@@ -78,16 +78,18 @@ def process_json_to_csv(data_json: dict):
     data_list = []
     for i in data_json["events"]:
         if i["file"] == "sensors.qo":
-            log_time = i["body"]["Timestamp"]
-            if log_time[0:10] == curr_date[0:10]:
-                data_list.append(i)
+            # will require when filtering out which data to include
+            # log_time = i["body"]["Timestamp"] 
+            # if log_time[0:10] == curr_date[0:10]:
+            data_list.append(i)
 
     filtered_data_json = {"events":data_list}
 
     events = filtered_data_json["events"]
     
     # open a file for writing csv data into
-    data_file = open("datalog_sample.csv", "w", newline='')
+    # data_file = open("datalog_sample.csv", "w", newline='')
+    data_file = open("DATALOG.csv", "w", newline='')
     csv_writer = csv.writer(data_file)
 
     # Counter variable used for writing
@@ -110,5 +112,5 @@ def process_json_to_csv(data_json: dict):
 # data_json = extract_json_from_notehub()
 # process_json_to_csv(data_json)
 
-# spectral_ui()
-# distance_ui()
+spectral_ui()
+distance_ui()
