@@ -70,7 +70,9 @@ void cellularSetup()
     // This command determines how often the Notecard connects to the service.
     // JAddStringToObject(req, "mode", "continuous");
 	JAddStringToObject(req, "mode", "periodic");
-    JAddNumberToObject(req, "outbound", 5);
+    JAddNumberToObject(req, "outbound", 30);		// send out data every 60 seconds
+	JAddNumberToObject(req, "inbound", 60);
+
 
     // Issue the request, telling the Notecard how and how often to access the service.
     // This results in a JSON message to Notecard formatted like:
@@ -184,5 +186,5 @@ void datalog(spectralChannels ch)
 
 	Serial.println("Waiting to connect to Notehub...");
     // Delay until the notecard connects to notehub
-    delay(15*1000);    // 5 seconds
+    delay(30*1000);    // 30 seconds
 }
