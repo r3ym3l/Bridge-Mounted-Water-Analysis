@@ -9,8 +9,8 @@ struct spectralChannels {
 	uint16_t f5 = 0;
 	uint16_t f6 = 0;
 	uint16_t f7 = 0;
-	float f8 = 0;
-	float nir = 0;
+	uint16_t f8 = 0;
+	uint16_t nir = 0;
 };
 
 void spectralInit();

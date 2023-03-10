@@ -5,6 +5,7 @@ import matplotlib.pyplot as mp
 import datetime
 import json
 import requests
+import re
 
 def spectral_ui():
     df = pd.read_csv('DATALOG.csv')
@@ -13,7 +14,7 @@ def spectral_ui():
     data.to_csv('spectral_data.csv', index = False)
  
     # Open file
-    with open('DATALOG.csv') as file_obj:
+    with open('DATALOG.csv', encoding="utf-8") as file_obj:
 
         # Skips the heading
         # Using next() method
@@ -73,15 +74,18 @@ def extract_json_from_notehub():
     return event_response.json()
 
 def process_json_to_csv(data_json: dict):
-    curr_date = datetime.datetime.now().isoformat()
+    datestamp = datetime.datetime.now().isoformat()
     # filter events to only the data we need
     data_list = []
     for i in data_json["events"]:
         if i["file"] == "sensors.qo":
             # will require when filtering out which data to include
-            # log_time = i["body"]["Timestamp"] 
-            # if log_time[0:10] == curr_date[0:10]:
-            data_list.append(i)
+            timestamp = i["body"]["Timestamp"]
+            time_split = timestamp.split()
+            log_date, log_time = re.split("/|-", time_split[0]), time_split[1]
+            curr_date = datestamp[0:10].split("-")
+            if int(log_date[0]) == int(curr_date[0]) and int(log_date[1]) == int(curr_date[1]) and int(log_date[2]) == int(curr_date[2]):
+                data_list.append(i)
 
     filtered_data_json = {"events":data_list}
 
@@ -89,7 +93,7 @@ def process_json_to_csv(data_json: dict):
     
     # open a file for writing csv data into
     # data_file = open("datalog_sample.csv", "w", newline='')
-    data_file = open("DATALOG.csv", "w", newline='')
+    data_file = open("DATALOG.csv", "w", newline='', encoding="utf-8")
     csv_writer = csv.writer(data_file)
 
     # Counter variable used for writing
@@ -109,8 +113,8 @@ def process_json_to_csv(data_json: dict):
     
     data_file.close()
 
-# data_json = extract_json_from_notehub()
-# process_json_to_csv(data_json)
+data_json = extract_json_from_notehub()
+process_json_to_csv(data_json)
 
-spectral_ui()
-distance_ui()
+# spectral_ui()
+# distance_ui()

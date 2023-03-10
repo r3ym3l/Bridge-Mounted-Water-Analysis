@@ -13,7 +13,7 @@ struct myBinaryPayload {
 };
 
 void cellularSetup();
-void cellularLog(spectralChannels ch);
+void cellularLog(char * batteryInfo, int distance, spectralChannels ch, float temp, char * timestamp);
 void batteryInfoTask(char* sdLog);
 
 // sensor tasks
@@ -36,7 +36,7 @@ void setup(void)
 	tempInit();
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
-	// cellularSetup();
+	cellularSetup();
 
 	// NEEDS FIXING
 	// if(!(readFileSize(fileNameFormat) > 0))
@@ -100,14 +100,17 @@ void loop(void)
 			Serial.println(sdLog);
 		}
 
+		char rtc[20];
+
 		// Timestamp
 		String rtcString = getTimeString();
 		rtcString.toCharArray(sdLog, rtcString.length()+1);
+		rtcString.toCharArray(rtc, rtcString.length()+1);
 
 		// Clearing the array
 		sdLog[0] = '\0';
 
-		// cellularLog(ch);
+		cellularLog("N/A", distance, ch, temp, rtc);
 	}
 }
 
@@ -236,6 +239,7 @@ int distanceTask(char* sdLog)
 
 	snprintf_P(tempString, sizeof(tempString), PSTR(",%d"), dist);
 	strncat(sdLog, tempString, strlen(tempString));
+	return dist;
 }
 
 float tempTask(char* sdLog)

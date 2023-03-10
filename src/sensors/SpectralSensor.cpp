@@ -27,15 +27,14 @@ void spectralInit()
 void processSpectrum(spectralChannels& ch, int n)
 {
 	processAverage(ch, n);
-	turbidityNorm(ch);
 }
 
 // normalizing spectra (700-900nm) to correct for skylight reflection
-void turbidityNorm(spectralChannels& ch)
-{
-	ch.f8 = ch.f8 / (float) ch.f4;
-	ch.nir = ch.nir / (float) ch.f4;
-}
+// void turbidityNorm(spectralChannels& ch)
+// {
+// 	ch.f8 = ch.f8 / (float) ch.f4;
+// 	ch.nir = ch.nir / (float) ch.f4;
+// }
 
 // average intensity levels of each channel for "n" readings
 void processAverage(spectralChannels& ch, int n)
@@ -47,8 +46,8 @@ void processAverage(spectralChannels& ch, int n)
 	ch.f5 = ch.f5 / (uint16_t) n;
 	ch.f6 = ch.f6 / (uint16_t) n;
 	ch.f7 = ch.f7 / (uint16_t) n;
-	ch.f8 = ch.f8 / (float) n;
-	ch.nir = ch.nir / (float) n;
+	ch.f8 = ch.f8 / (uint16_t) n;
+	ch.nir = ch.nir / (uint16_t) n;
 
 	spectrumProcessed = true;
 }
