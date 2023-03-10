@@ -1,59 +1,68 @@
 import pandas as pd
-import csv
 import matplotlib.pyplot as mp
-# getting data from notehub
+import requests
+import os
+import csv
 import datetime
 import json
-import requests
 import re
 
+filename = 'DATALOG.csv'
+
 def spectral_ui():
-    df = pd.read_csv('DATALOG.csv')
-    list_of_column_names = list(df.columns)
-    data = pd.DataFrame({'Wavelength (nm)':list_of_column_names[2:11]})
-    data.to_csv('spectral_data.csv', index = False)
- 
-    # Open file
-    with open('DATALOG.csv', encoding="utf-8") as file_obj:
+    if os.stat(filename).st_size != 0:
+        df = pd.read_csv(filename)
 
-        # Skips the heading
-        # Using next() method
-        heading = next(file_obj)
-
-        # Create reader object by passing the file 
-        # object to reader method
-        reader_obj = csv.reader(file_obj)
-
-        # Iterate over each row in the csv file 
-        # using reader object
-        for row in reader_obj:
-            col_name = row[-1]
-            data[col_name] = row[2:11]
-            data.to_csv('spectral_data.csv') 
-
-        df = pd.read_csv('spectral_data.csv')
         list_of_column_names = list(df.columns)
+        data = pd.DataFrame({'Wavelength (nm)':list_of_column_names[2:11]})
+        data.to_csv('spectral_data.csv', index = False)
+    
+        # Open file
+        with open(filename, encoding="utf-8") as file_obj:
 
-        # plot multiple columns such as population and year from dataframe
-        df.plot(x=list_of_column_names[1], y=list_of_column_names[2:], kind="line", figsize=(20, 10))
+            # Skips the heading
+            # Using next() method
+            heading = next(file_obj)
 
-        # display plot
-        mp.title("Turbid Water Data")
-        mp.ylabel("Intensity Levels")
-        mp.grid(color='gray', linestyle='dashed')
-        mp.show()
+            # Create reader object by passing the file 
+            # object to reader method
+            reader_obj = csv.reader(file_obj)
+
+            # Iterate over each row in the csv file 
+            # using reader object
+            for row in reader_obj:
+                col_name = row[-1]
+                data[col_name] = row[2:11]
+                data.to_csv('spectral_data.csv') 
+
+            df = pd.read_csv('spectral_data.csv')
+            list_of_column_names = list(df.columns)
+
+            # plot multiple columns such as population and year from dataframe
+            df.plot(x=list_of_column_names[1], y=list_of_column_names[2:], kind="line", figsize=(20, 10))
+
+            # display plot
+            mp.title("Turbid Water Data")
+            mp.ylabel("Intensity Levels")
+            mp.grid(color='gray', linestyle='dashed')
+            mp.show()
+    else:
+        print("CSV file is empty, make sure timestamp is properly filtered (data from today/yesterday/some time ago)")
 
 def distance_ui():
-    df = pd.read_csv('DATALOG.csv')
-    list_of_column_names = list(df.columns)
- 
-    # plot multiple columns such as population and year from dataframe
-    df.plot(x=list_of_column_names[0], y=list_of_column_names[1], kind="scatter", color="DarkBlue", figsize=(20, 10))
+    if os.stat(filename).st_size != 0:
+        df = pd.read_csv(filename)
+        list_of_column_names = list(df.columns)
     
-    # display plot
-    mp.title("Ultrasonic Distance Data")
-    mp.ylabel("Height (mm)")
-    mp.show()
+        # plot multiple columns such as population and year from dataframe
+        df.plot(x=list_of_column_names[0], y=list_of_column_names[1], kind="scatter", color="DarkBlue", figsize=(20, 10))
+        
+        # display plot
+        mp.title("Ultrasonic Distance Data")
+        mp.ylabel("Height (mm)")
+        mp.show()
+    else: 
+        print("CSV file is empty, make sure timestamp is properly filtered (data from today/yesterday/some time ago)")
 
 def extract_json_from_notehub():
     auth_url = "https://notehub.io/oauth2/token"
@@ -116,5 +125,5 @@ def process_json_to_csv(data_json: dict):
 data_json = extract_json_from_notehub()
 process_json_to_csv(data_json)
 
-# spectral_ui()
-# distance_ui()
+spectral_ui()
+distance_ui()
