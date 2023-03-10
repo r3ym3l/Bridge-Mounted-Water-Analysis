@@ -5,15 +5,16 @@ Notecard notecard;
 
 // A sample binary object, just for binary payload simulation
 struct myBinaryPayload {
-    char *timestamp;
+    char * timestamp;
 	int distance;
 	spectralChannels ch;
     int temperature;
-	int batteryInfo;
+	char * batteryInfo;
 };
 
 void cellularSetup();
 void cellularLog(spectralChannels ch);
+void batteryInfoTask(char* sdLog);
 
 // sensor tasks
 int distanceTask(char* sdLog);
@@ -35,7 +36,7 @@ void setup(void)
 	tempInit();
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
-	cellularSetup();
+	// cellularSetup();
 
 	// NEEDS FIXING
 	// if(!(readFileSize(fileNameFormat) > 0))
@@ -73,9 +74,6 @@ void loop(void)
 
 	currentMillis = millis();
 	char sdLog[100];
-
-	String rtcString = getTimeString();
-	rtcString.toCharArray(sdLog, rtcString.length()+1);
 	
 	Serial.println("");
 	// NEEDS UPDATE:
@@ -83,10 +81,12 @@ void loop(void)
 	// Current code still writes to SD with only RTC value due to the conditions not being met below
 	if (currentMillis - previousMillis > distanceReadInterval)
 	{
+		batteryInfoTask(sdLog);
+
 		// sensor tasks
-		distanceTask(sdLog);
-		tempTask(sdLog);
+		int distance = distanceTask(sdLog);
 		spectralChannels ch = spectralTask(sdLog);
+		float temp = tempTask(sdLog);
 		previousMillis = currentMillis;
 
 		// Write to log to SD card
@@ -99,10 +99,15 @@ void loop(void)
 			Serial.println("String logged into SD card:");
 			Serial.println(sdLog);
 		}
+
+		// Timestamp
+		String rtcString = getTimeString();
+		rtcString.toCharArray(sdLog, rtcString.length()+1);
+
 		// Clearing the array
 		sdLog[0] = '\0';
 
-		cellularLog(ch);
+		// cellularLog(ch);
 	}
 }
 
@@ -125,7 +130,8 @@ void cellularSetup()
     // This command determines how often the Notecard connects to the service.
     // JAddStringToObject(req, "mode", "continuous");
 	JAddStringToObject(req, "mode", "periodic");
-    JAddNumberToObject(req, "outbound", 5);
+    JAddNumberToObject(req, "outbound", 30);		// send out data every 60 seconds
+	JAddNumberToObject(req, "inbound", 60);
 
     // Issue the request, telling the Notecard how and how often to access the service.
     // This results in a JSON message to Notecard formatted like:
@@ -148,9 +154,8 @@ void cellularSetup()
         if (body != NULL) {
 
             // Define the JSON template
-            JAddStringToObject(body, "Timestamp", "AAAAAAAAAAAAAAAA");   	// maximum string length
+            JAddStringToObject(body, "Battery Information (Pending)", "AAA");	// maximum string length
             JAddNumberToObject(body, "Distance(mm)", 1);          			// integer
-            JAddNumberToObject(body, "Temperature(Celsius)", 1.1);       	// floating point (double)
 			JAddNumberToObject(body, "F1(405-425nm)", 1.1);       			// floating point (double)
 			JAddNumberToObject(body, "F2(435-455nm)", 1.1);       			// floating point (double)
 			JAddNumberToObject(body, "F3(470-490nm)", 1.1);       			// floating point (double)
@@ -160,7 +165,8 @@ void cellularSetup()
 			JAddNumberToObject(body, "F7(620-640nm)", 1.1);       			// floating point (double)
 			JAddNumberToObject(body, "F8(670-690nm)", 1.1);       			// floating point (double)
 			JAddNumberToObject(body, "NIR(900nm)", 1.1);       				// floating point (double)
-            JAddNumberToObject(body, "Battery Information (Pending)", 1);	// integer
+            JAddNumberToObject(body, "Temperature(Celsius)", 1.1);       	// floating point (double)
+            JAddStringToObject(body, "Timestamp", "AAAAAAAAAAAAAAAA");   	// maximum string length
 
             // Add the body to the request
             JAddItemToObject(req, "body", body);
@@ -176,15 +182,15 @@ void cellularSetup()
     }
 }
 
-void cellularLog(spectralChannels ch)
+void cellularLog(char * batteryInfo, int distance, spectralChannels ch, float temp, char * timestamp)
 {
 	// Add a binary data structure to the simulation
     struct myBinaryPayload binaryData;
-	binaryData.timestamp = "2023-01-16 17:40";
-	binaryData.distance = 1000;
-	binaryData.temperature = 23.87;
+	binaryData.batteryInfo = batteryInfo;
+	binaryData.distance = distance;
 	binaryData.ch = ch;
-	binaryData.batteryInfo = 1;
+	binaryData.temperature = temp;
+	binaryData.timestamp = timestamp;
 
     // Enqueue the measurement to the Notecard for transmission to the Notehub
     J *req = notecard.newRequest("note.add");
@@ -193,9 +199,8 @@ void cellularLog(spectralChannels ch)
 		JAddBoolToObject(req, "sync", true);
         J *body = JCreateObject();
         if (body) {
-            JAddStringToObject(body, "Timestamp", "2023-01-16 17:40");   	// maximum string length
-            JAddNumberToObject(body, "Distance(mm)", 1000);          		// integer
-            JAddNumberToObject(body, "Temperature(Celsius)", 23.87);       	// floating point (double)
+            JAddStringToObject(body, "Battery Information (Pending)", batteryInfo);	// integer
+            JAddNumberToObject(body, "Distance(mm)", distance);          		// integer
 			JAddNumberToObject(body, "F1(405-425nm)", ch.f1);       		// floating point (double)
 			JAddNumberToObject(body, "F2(435-455nm)", ch.f2);       		// floating point (double)
 			JAddNumberToObject(body, "F3(470-490nm)", ch.f3);       		// floating point (double)
@@ -205,7 +210,8 @@ void cellularLog(spectralChannels ch)
 			JAddNumberToObject(body, "F7(620-640nm)", ch.f7);      			// floating point (double)
 			JAddNumberToObject(body, "F8(670-690nm)", ch.f8);      			// floating point (double)
 			JAddNumberToObject(body, "NIR(900nm)", ch.nir);     			// floating point (double)
-            JAddNumberToObject(body, "Battery Information (Pending)", 1);	// integer
+            JAddNumberToObject(body, "Temperature(Celsius)", temp);       	// floating point (double)
+            JAddStringToObject(body, "Timestamp", timestamp);   	// maximum string length
 
             // Add the body to the request
             JAddItemToObject(req, "body", body);
@@ -216,7 +222,7 @@ void cellularLog(spectralChannels ch)
 
 	Serial.println("Waiting to connect to Notehub...");
     // Delay until the notecard connects to notehub
-    delay(60*1000);    // 5 seconds
+    delay(30*1000);    // 30 seconds
 }
 
 int distanceTask(char* sdLog)
@@ -280,6 +286,12 @@ spectralChannels spectralTask(char* sdLog)
 	Serial.println("");
     delay(3000);	// delay for 8 seconds after 10 readings then repeat
 	return ch;
+}
+
+void batteryInfoTask(char* sdLog)	// void for now, later on will return battery info data type
+{
+	String batteryInfoString = "N/A";
+	batteryInfoString.toCharArray(sdLog, batteryInfoString.length()+1);
 }
 
 void cmdHandler()

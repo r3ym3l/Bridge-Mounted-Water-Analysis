@@ -40,7 +40,7 @@ bool SDConnected;
 bool RTCConnected;
 
 String fileNameFormat = "datalog.csv";
-String fileHeader = "RTC Date (Year-Month-Day Hours:Minutes),Distance (mm),Temperature (Celsius),415nm,445nm,480nm,515nm,555nm,590nm,630nm,680nm,910nm";
+String fileHeader = "Battery Information (Pending),Distance(mm),F1(405-425nm),F2(435-455nm),F3(470-490nm),F4(505-525nm),F5(545-565nm),F6(580-600nm),F7(620-640nm),F8(670-690nm),NIR(900nm),Temperature(Celsius),Timestamp";
 char input;
 int state;
 
