@@ -1,0 +1,9 @@
+***'pip install' the following if not already installed***
+pandas
+matplotlib
+requests
+os
+csv
+datetime
+json
+re
