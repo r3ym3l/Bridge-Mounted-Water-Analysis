@@ -1,3 +1,5 @@
+#pragma once
+
 #include <SD.h>
 #include "main.h"
 
@@ -5,4 +7,4 @@
 bool sdInit();
 bool writeToSD(String fileName, String text);
 void printFiles();
-uint32_t readFileSize(String fileName);
+bool isFileEmpty(String fileName);

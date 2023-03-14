@@ -56,8 +56,19 @@ void printFiles()
   root.ls(LS_R | LS_DATE | LS_SIZE);
 }
 
-uint32_t readFileSize(String fileName)
+bool isFileEmpty(String fileName)
 {
+  bool isEmpty = false;
   myFile = SD.open(fileName, FILE_READ);
-  return myFile.size();
+
+  while (myFile.available())
+  {
+    String line = myFile.readStringUntil('\n');
+    int row_count = 0;
+    if ((line == "\r\n" || line == "\n" || line == "") && row_count == 0) 
+    {
+      isEmpty = true;
+    }
+  }
+  return isEmpty;
 }

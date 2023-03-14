@@ -33,8 +33,8 @@
 #define LOAD_CURRENT_IDX 0x04
 #define SOLAR_VOLTAGE_IDX 0x07
 #define SOLAR_CURRENT_IDX 0x08
-#define CHARGE_TODAY 0x11
-#define DISCHARGE_TODAY 0x12
+#define CHARGE_TODAY_IDX 0x11
+#define DISCHARGE_TODAY_IDX 0x12
 
 // sensors
 #include "sensors/SpectralSensor.h"
@@ -59,6 +59,7 @@ bool SDConnected;
 bool RTCConnected;
 
 String fileNameFormat = "datalog.csv";
+String fileNameDate = "";
 String fileHeader = "Battery Information (Pending),Distance(mm),F1(405-425nm),F2(435-455nm),F3(470-490nm),F4(505-525nm),F5(545-565nm),F6(580-600nm),F7(620-640nm),F8(670-690nm),NIR(900nm),Temperature(Celsius),Timestamp";
 char input;
 int state;

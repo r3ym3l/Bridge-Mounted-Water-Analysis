@@ -56,9 +56,18 @@ void setup(void)
 	_UART1_.begin(9600);
 	node.begin(MODBUS_ADDRESS, _UART1_);
 	printString("Charge Controller Modbus initialized successfully");
+	
+	// only uses date as the file name
+	int index = getTimeString().indexOf(' ');
+	fileNameDate = getTimeString().substring(0, index);
 
-	printString("Adding headers to csv file");
-	writeToSD(fileNameFormat, fileHeader);
+	// checks if file has no data, then add headers
+	if (isFileEmpty(fileNameFormat) && isFileEmpty(fileNameDate))
+	{
+		printString("Adding headers to csv file");
+		writeToSD(fileNameFormat, fileHeader);
+		writeToSD(fileNameDate, fileHeader);
+	}
 
 	if(RTCConnected)
 	{
@@ -102,7 +111,7 @@ void loop(void)
 		previousMillis = currentMillis;
 
 		// Write to log to SD card
-		if(!writeToSD(fileNameFormat, sdLog))
+		if(!writeToSD(fileNameFormat, sdLog) && !writeToSD(fileNameDate, sdLog))
 		{
 			SDConnected = false;
 		}
@@ -306,9 +315,12 @@ spectralChannels spectralTask(char* sdLog)
 
 void batteryInfoTask(char* sdLog)	// void for now, later on will return battery info data type
 {
+	// Initialize variables
 	static uint32_t i;
 	uint8_t j, result;
-	uint16_t capacity, chargeCurrent, loadVoltage, ;
+	uint16_t capacity, chargeCurrent, loadVoltage, loadCurrent, solarVoltage, solarCurrent, chargeToday, dischargeToday;
+	char tempString[100];
+
 	i++;
 	node.setTransmitBuffer(0, lowWord(i));
 	node.setTransmitBuffer(1, highWord(i));
@@ -325,9 +337,18 @@ void batteryInfoTask(char* sdLog)	// void for now, later on will return battery 
 	{
 		printString("Failed to read the data registers...");
 	}
+
+	capacity = data_registers[CAPACITY_IDX];
+	chargeCurrent = data_registers[CHARGING_CURRENT_IDX];
+	loadVoltage = data_registers[LOAD_VOLTAGE_IDX];
+	loadCurrent = data_registers[LOAD_CURRENT_IDX];
+	solarVoltage = data_registers[SOLAR_VOLTAGE_IDX];
+	solarCurrent = data_registers[SOLAR_CURRENT_IDX];
+	chargeToday = data_registers[CHARGE_TODAY_IDX];
+	dischargeToday = data_registers[DISCHARGE_TODAY_IDX];
 	
-	String batteryInfoString = "N/A";
-	batteryInfoString.toCharArray(sdLog, batteryInfoString.length()+1);
+	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%d,%d,%d,%d,%d,%d,%d"), capacity, chargeCurrent, loadVoltage, loadCurrent, solarVoltage, solarCurrent, chargeToday, dischargeToday);
+	strncat(sdLog, tempString, strlen(tempString));
 }
 
 void cmdHandler()
