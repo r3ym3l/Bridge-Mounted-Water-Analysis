@@ -1,7 +1,6 @@
 #pragma once
 
 #include "DFRobot_AS7341.h"
-#include "main.h"
 
 struct spectralChannels 
 {

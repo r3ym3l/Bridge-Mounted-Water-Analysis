@@ -10,21 +10,21 @@ uint SD_CS_PIN = 12u;
 // Functions
 bool sdInit()
 {
-    printString("Initializing SD module...");
+    Serial.println("Initializing SD module...");
     if (!SD.begin(SD_CS_PIN)) {
-        printString("SD module initialization failed!");
+        Serial.println("SD module initialization failed!");
         return false;
     }
-    printString("SD module has initialized successfully.");
+    Serial.println("SD module has initialized successfully.");
     while (!card.init(SPI_HALF_SPEED, SD_CS_PIN)) {
-    printString("initialization failed. Things to check:");
-    printString("* is a card is inserted?");
-    printString("* Is your wiring correct?");
-    printString("* did you change the chipSelect pin to match your shield or module?");
+    Serial.println("initialization failed. Things to check:");
+    Serial.println("* is a card is inserted?");
+    Serial.println("* Is your wiring correct?");
+    Serial.println("* did you change the chipSelect pin to match your shield or module?");
     }  
     if (!volume.init(card)) {
-      printString("Could not find FAT16/FAT32 partition.");
-      printString("Make sure you've formatted the card");
+      Serial.println("Could not find FAT16/FAT32 partition.");
+      Serial.println("Make sure you've formatted the card");
       return false;
     }
     return true;
@@ -44,14 +44,14 @@ bool writeToSD(String fileName, String text)
     }
     else
     {
-      printString("Write to SD failed");
+      Serial.println("Write to SD failed");
       return false;
     }
 }
 
 void printFiles()
 {
-  // printString("Files (name, date and size in bytes): ");
+  // Serial.println("Files (name, date and size in bytes): ");
   root.openRoot(volume);
   root.ls(LS_R | LS_DATE | LS_SIZE);
 }
@@ -61,14 +61,19 @@ bool isFileEmpty(String fileName)
   bool isEmpty = false;
   myFile = SD.open(fileName, FILE_READ);
 
-  while (myFile.available())
+  int row_count = 0;
+  if (myFile.available())
   {
     String line = myFile.readStringUntil('\n');
-    int row_count = 0;
-    if ((line == "\r\n" || line == "\n" || line == "") && row_count == 0) 
+    if (line == "\r\n" || line == "\n" || line == "") 
     {
-      isEmpty = true;
+      row_count += 1;
     }
+  }
+
+  if (row_count > 0)
+  {
+    isEmpty = true;
   }
   return isEmpty;
 }

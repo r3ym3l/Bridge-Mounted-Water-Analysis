@@ -24,7 +24,7 @@
 #define myProductID PRODUCT_UID
 
 // charge controller
-#define NUM_DATA_REGISTERS 0x12
+#define NUM_DATA_REGISTERS 30
 #define MODBUS_ADDRESS 0xFF
 #define STARTING_REGISTER 0x100
 #define CAPACITY_IDX 0x00
@@ -104,5 +104,3 @@ enum {
     toggleDistance,
     toggleSpectral
 } commands;
-
-void printString(String toPrint);

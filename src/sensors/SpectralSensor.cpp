@@ -8,7 +8,7 @@ void spectralInit()
 {
     //Detect if IIC can communicate properly 
 	while (as7341.begin() != 0) {
-		printString("IIC init failed, please check if the wire connection is correct");
+		Serial.println("IIC init failed, please check if the wire connection is correct");
 		delay(1000);
 	}
 	//Integration time = (ATIME + 1) x (ASTEP + 1) x 2.78µs
@@ -86,14 +86,14 @@ void printSpectrum(spectralChannels& ch)
 {
 	if (spectrumProcessed)
 	{
-		printString("F1(405-425nm):" + String(ch.f1));
-		printString("F2(435-455nm):" + String(ch.f2));
-		printString("F3(470-490nm):" + String(ch.f3));
-		printString("F4(505-525nm):" + String(ch.f4));
-		printString("F5(545-565nm):" + String(ch.f5));
-		printString("F6(580-600nm):" + String(ch.f6));
-		printString("F7(620-640nm):" + String(ch.f7));
-		printString("F8(670-690nm):" + String(ch.f8));
-		printString("NIR:" + String(ch.nir));
+		Serial.println("F1(405-425nm):" + String(ch.f1));
+		Serial.println("F2(435-455nm):" + String(ch.f2));
+		Serial.println("F3(470-490nm):" + String(ch.f3));
+		Serial.println("F4(505-525nm):" + String(ch.f4));
+		Serial.println("F5(545-565nm):" + String(ch.f5));
+		Serial.println("F6(580-600nm):" + String(ch.f6));
+		Serial.println("F7(620-640nm):" + String(ch.f7));
+		Serial.println("F8(670-690nm):" + String(ch.f8));
+		Serial.println("NIR:" + String(ch.nir));
 	}
 }

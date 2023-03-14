@@ -42,7 +42,7 @@ void setup(void)
 	tempInit();
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
-	cellularSetup();
+	//cellularSetup();
 
 	// NEEDS FIXING
 	// if(!(readFileSize(fileNameFormat) > 0))
@@ -52,27 +52,33 @@ void setup(void)
 	// }
 
 	// Initialize Charge Controller Modbus
-	printString("Initializing Charge Controller Modbus");
+	Serial.println("Initializing Charge Controller Modbus");
 	_UART1_.begin(9600);
 	node.begin(MODBUS_ADDRESS, _UART1_);
-	printString("Charge Controller Modbus initialized successfully");
+	delay(1000);
+	Serial.println("Charge Controller Modbus initialized successfully");
 	
 	// only uses date as the file name
 	int index = getTimeString().indexOf(' ');
 	fileNameDate = getTimeString().substring(0, index);
-
+	Serial.print("fileNameDate: ");
+	Serial.println(fileNameDate);
+	Serial.print("Is fileNameFormat file empty? ");
+	Serial.println(isFileEmpty(fileNameFormat));
+	Serial.print("Is fileNameDate file empty? ");
+	Serial.println(isFileEmpty(fileNameDate));
 	// checks if file has no data, then add headers
 	if (isFileEmpty(fileNameFormat) && isFileEmpty(fileNameDate))
 	{
-		printString("Adding headers to csv file");
+		Serial.println("Adding headers to csv file");
 		writeToSD(fileNameFormat, fileHeader);
 		writeToSD(fileNameDate, fileHeader);
 	}
 
 	if(RTCConnected)
 	{
-		printString("Date and Time is: ");
-		printString(getTimeString());
+		Serial.print("Date and Time is: ");
+		Serial.println(getTimeString());
 	}
 	state = 0;
 	printMultiString(menuString);
@@ -81,7 +87,7 @@ void setup(void)
 void loop(void)
 {
 	// Handle any commands from the user
-	printString("");
+	//Serial.println("");
 	cmdHandler();
 
 	if (!SDConnected)
@@ -89,14 +95,14 @@ void loop(void)
 		if (sdInit())
 		{
 			SDConnected = true;
-			printString("SD card is connected.");
+			Serial.println("SD card is connected.");
 		}
 	}
 
 	currentMillis = millis();
 	char sdLog[100];
 	
-	printString("");
+	//Serial.println("");
 	// NEEDS UPDATE:
 	// Do we need these read intervals? 
 	// Current code still writes to SD with only RTC value due to the conditions not being met below
@@ -117,8 +123,8 @@ void loop(void)
 		}
 		else
 		{
-			printString("String logged into SD card:");
-			printString(sdLog);
+			Serial.println("String logged into SD card:");
+			Serial.println(sdLog);
 		}
 
 		char rtc[20];
@@ -131,7 +137,7 @@ void loop(void)
 		// Clearing the array
 		sdLog[0] = '\0';
 
-		cellularLog("N/A", distance, ch, temp, rtc);
+		//cellularLog("N/A", distance, ch, temp, rtc);
 	}
 }
 
@@ -244,9 +250,9 @@ void cellularLog(char * batteryInfo, int distance, spectralChannels ch, float te
         notecard.sendRequest(req);
     }
 
-	printString("Waiting to connect to Notehub...");
+	Serial.println("Waiting to connect to Notehub...");
     // Delay until the notecard connects to notehub
-    delay(30*1000);    // 30 seconds
+    //delay(30*1000);    // 30 seconds
 }
 
 int distanceTask(char* sdLog)
@@ -254,9 +260,9 @@ int distanceTask(char* sdLog)
 	char tempString[50];
 	int dist = readDistance();
 	
-	printString("Ultrasonic Distance Sensor:");
+	Serial.print("Ultrasonic Distance Sensor:");
 	printDistance();
-	printString("");
+	Serial.println("");
 
 	snprintf_P(tempString, sizeof(tempString), PSTR(",%d"), dist);
 	strncat(sdLog, tempString, strlen(tempString));
@@ -266,9 +272,9 @@ int distanceTask(char* sdLog)
 float tempTask(char* sdLog)
 {
 	char tempString[50];
-	printString("Temperature Sensor:");
+	Serial.println("Temperature Sensor:");
 	printTemp();
-	printString("");
+	Serial.println("");
 
 	float temp = readTemp();
 
@@ -297,7 +303,7 @@ spectralChannels spectralTask(char* sdLog)
 	processSpectrum(ch, n);
 
 	// will only print when the spectral values has been processed
-	printString("Spectral Sensor:");
+	Serial.print("Spectral Sensor:");
 	printSpectrum(ch);
 
 	// place in spectralTask function
@@ -305,10 +311,10 @@ spectralChannels spectralTask(char* sdLog)
 	strncat(sdLog, tempString, strlen(tempString));
 
 
-    printString("--------------------------------------");
+    Serial.println("--------------------------------------");
 
-	printString("Waiting...");
-	printString("");
+	Serial.println("Waiting...");
+	Serial.println("");
     delay(3000);	// delay for 8 seconds after 10 readings then repeat
 	return ch;
 }
@@ -327,7 +333,7 @@ void batteryInfoTask(char* sdLog)	// void for now, later on will return battery 
 	result = node.readHoldingRegisters(STARTING_REGISTER, NUM_DATA_REGISTERS);
 	if (result == node.ku8MBSuccess)
 	{
-		printString("Successfully read the data registers!");
+		Serial.println("Successfully read the data registers!");
 		for (j = 0; j < NUM_DATA_REGISTERS; j++)
 		{
 			data_registers[j] = node.getResponseBuffer(j);
@@ -335,7 +341,7 @@ void batteryInfoTask(char* sdLog)	// void for now, later on will return battery 
 	}
 	else
 	{
-		printString("Failed to read the data registers...");
+		Serial.println("Failed to read the data registers...");
 	}
 
 	capacity = data_registers[CAPACITY_IDX];
@@ -482,13 +488,13 @@ void printMultiString(const char *toPrint)
 	while (std::getline(iss, line))
 	{
 		// Serial.println(line.c_str());
-		printString(line.c_str());
+		Serial.println(line.c_str());
 	}
 }
 
-void printString(String toPrint)
-{
-	if (Serial.available() > 0){
-		Serial.println(toPrint);
-	}
-}
+// void Serial.println(String toPrint)
+// {
+// 	if (Serial.available() > 0){
+// 		Serial.println(toPrint);
+// 	}
+// }
