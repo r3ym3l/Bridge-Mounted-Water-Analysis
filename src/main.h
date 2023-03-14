@@ -12,6 +12,9 @@
 #include <Notecard.h>
 #include <stdlib.h>
 
+// Modbus Master
+#include <ModbusMaster.h>
+
 // This is the unique Product Identifier for your device
 #ifndef PRODUCT_UID
 #define PRODUCT_UID "com.gmail.ereymel1:bmwam"		// "com.my-company.my-name:my-project"
@@ -19,6 +22,19 @@
 #endif
 
 #define myProductID PRODUCT_UID
+
+// charge controller
+#define NUM_DATA_REGISTERS 0x12
+#define MODBUS_ADDRESS 0xFF
+#define STARTING_REGISTER 0x100
+#define CAPACITY_IDX 0x00
+#define CHARGING_CURRENT_IDX 0x01
+#define LOAD_VOLTAGE_IDX 0x05
+#define LOAD_CURRENT_IDX 0x04
+#define SOLAR_VOLTAGE_IDX 0x07
+#define SOLAR_CURRENT_IDX 0x08
+#define CHARGE_TODAY 0x11
+#define DISCHARGE_TODAY 0x12
 
 // sensors
 #include "sensors/SpectralSensor.h"
@@ -35,6 +51,9 @@ int distance;
 unsigned long previousMillis = 0UL;
 unsigned long distanceReadInterval = 2000UL;
 unsigned long currentMillis = 0;
+
+ModbusMaster node;
+uint16_t data_registers[NUM_DATA_REGISTERS];
 
 bool SDConnected;
 bool RTCConnected;
@@ -84,3 +103,5 @@ enum {
     toggleDistance,
     toggleSpectral
 } commands;
+
+void printString(String toPrint);

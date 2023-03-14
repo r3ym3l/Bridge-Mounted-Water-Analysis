@@ -1,4 +1,5 @@
 #include "RTClib.h"
+#include "main.h"
 
 // Functions
 bool rtcInit();

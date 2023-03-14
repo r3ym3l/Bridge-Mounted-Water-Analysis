@@ -1,7 +1,10 @@
 #pragma once
 
 #include "DFRobot_AS7341.h"
-struct spectralChannels {
+#include "main.h"
+
+struct spectralChannels 
+{
 	uint16_t f1 = 0;
 	uint16_t f2 = 0;
 	uint16_t f3 = 0;

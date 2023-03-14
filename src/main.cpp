@@ -27,9 +27,15 @@ void printMultiString(const char* toPrint);
 
 void setup(void)
 {
+	currentMillis = millis();
     Serial.begin(115200);
-    while (!Serial)
-    delay(10);
+
+	// if Serial is not initialized and 10 seconds passed
+	// keep program running 
+    while (!Serial && ((currentMillis - previousMillis) > 10*1000))
+	{
+		previousMillis = currentMillis;
+	}
 
 	// sensor setups
 	spectralInit();
@@ -45,13 +51,19 @@ void setup(void)
 	// 	writeToSD(fileNameFormat, fileHeader);
 	// }
 
-	Serial.println("Adding headers to csv file");
+	// Initialize Charge Controller Modbus
+	printString("Initializing Charge Controller Modbus");
+	_UART1_.begin(9600);
+	node.begin(MODBUS_ADDRESS, _UART1_);
+	printString("Charge Controller Modbus initialized successfully");
+
+	printString("Adding headers to csv file");
 	writeToSD(fileNameFormat, fileHeader);
 
 	if(RTCConnected)
 	{
-		Serial.print("Date and Time is: ");
-		Serial.println(getTimeString());
+		printString("Date and Time is: ");
+		printString(getTimeString());
 	}
 	state = 0;
 	printMultiString(menuString);
@@ -60,7 +72,7 @@ void setup(void)
 void loop(void)
 {
 	// Handle any commands from the user
-	Serial.println("");
+	printString("");
 	cmdHandler();
 
 	if (!SDConnected)
@@ -68,14 +80,14 @@ void loop(void)
 		if (sdInit())
 		{
 			SDConnected = true;
-			Serial.println("SD card is connected.");
+			printString("SD card is connected.");
 		}
 	}
 
 	currentMillis = millis();
 	char sdLog[100];
 	
-	Serial.println("");
+	printString("");
 	// NEEDS UPDATE:
 	// Do we need these read intervals? 
 	// Current code still writes to SD with only RTC value due to the conditions not being met below
@@ -96,8 +108,8 @@ void loop(void)
 		}
 		else
 		{
-			Serial.println("String logged into SD card:");
-			Serial.println(sdLog);
+			printString("String logged into SD card:");
+			printString(sdLog);
 		}
 
 		char rtc[20];
@@ -158,18 +170,18 @@ void cellularSetup()
 
             // Define the JSON template
             JAddStringToObject(body, "Battery Information (Pending)", "AAA");	// maximum string length
-            JAddNumberToObject(body, "Distance(mm)", 1);          			// integer
-			JAddNumberToObject(body, "F1(405-425nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "F2(435-455nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "F3(470-490nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "F4(505-525nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "F5(545-565nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "F6(580-600nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "F7(620-640nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "F8(670-690nm)", 1.1);       			// floating point (double)
-			JAddNumberToObject(body, "NIR(900nm)", 1.1);       				// floating point (double)
-            JAddNumberToObject(body, "Temperature(Celsius)", 1.1);       	// floating point (double)
-            JAddStringToObject(body, "Timestamp", "AAAAAAAAAAAAAAAA");   	// maximum string length
+            JAddNumberToObject(body, "Distance(mm)", 1);          				// integer
+			JAddNumberToObject(body, "F1(405-425nm)", 1);       				// integer
+			JAddNumberToObject(body, "F2(435-455nm)", 1);       				// integer
+			JAddNumberToObject(body, "F3(470-490nm)", 1);       				// integer
+			JAddNumberToObject(body, "F4(505-525nm)", 1);       				// integer
+			JAddNumberToObject(body, "F5(545-565nm)", 1);       				// integer
+			JAddNumberToObject(body, "F6(580-600nm)", 1);       				// integer
+			JAddNumberToObject(body, "F7(620-640nm)", 1);       				// integer
+			JAddNumberToObject(body, "F8(670-690nm)", 1);       				// integer
+			JAddNumberToObject(body, "NIR(900nm)", 1);       					// integer
+            JAddNumberToObject(body, "Temperature(Celsius)", 1.1);       		// integer
+            JAddStringToObject(body, "Timestamp", "AAAAAAAAAAAAAAAA");   		// maximum string length
 
             // Add the body to the request
             JAddItemToObject(req, "body", body);
@@ -203,18 +215,18 @@ void cellularLog(char * batteryInfo, int distance, spectralChannels ch, float te
         J *body = JCreateObject();
         if (body) {
             JAddStringToObject(body, "Battery Information (Pending)", batteryInfo);	// integer
-            JAddNumberToObject(body, "Distance(mm)", distance);          		// integer
-			JAddNumberToObject(body, "F1(405-425nm)", ch.f1);       		// floating point (double)
-			JAddNumberToObject(body, "F2(435-455nm)", ch.f2);       		// floating point (double)
-			JAddNumberToObject(body, "F3(470-490nm)", ch.f3);       		// floating point (double)
-			JAddNumberToObject(body, "F4(505-525nm)", ch.f4);      			// floating point (double)
-			JAddNumberToObject(body, "F5(545-565nm)", ch.f5);      			// floating point (double)
-			JAddNumberToObject(body, "F6(580-600nm)", ch.f6);      			// floating point (double)
-			JAddNumberToObject(body, "F7(620-640nm)", ch.f7);      			// floating point (double)
-			JAddNumberToObject(body, "F8(670-690nm)", ch.f8);      			// floating point (double)
-			JAddNumberToObject(body, "NIR(900nm)", ch.nir);     			// floating point (double)
-            JAddNumberToObject(body, "Temperature(Celsius)", temp);       	// floating point (double)
-            JAddStringToObject(body, "Timestamp", timestamp);   	// maximum string length
+            JAddNumberToObject(body, "Distance(mm)", distance);          			// integer
+			JAddNumberToObject(body, "F1(405-425nm)", ch.f1);       				// integer
+			JAddNumberToObject(body, "F2(435-455nm)", ch.f2);       				// integer
+			JAddNumberToObject(body, "F3(470-490nm)", ch.f3);       				// integer
+			JAddNumberToObject(body, "F4(505-525nm)", ch.f4);      					// integer
+			JAddNumberToObject(body, "F5(545-565nm)", ch.f5);      					// integer
+			JAddNumberToObject(body, "F6(580-600nm)", ch.f6);      					// integer
+			JAddNumberToObject(body, "F7(620-640nm)", ch.f7);      					// integer
+			JAddNumberToObject(body, "F8(670-690nm)", ch.f8);      					// integer
+			JAddNumberToObject(body, "NIR(900nm)", ch.nir);     					// integer
+            JAddNumberToObject(body, "Temperature(Celsius)", temp);       			// integer
+            JAddStringToObject(body, "Timestamp", timestamp);   					// maximum string length
 
             // Add the body to the request
             JAddItemToObject(req, "body", body);
@@ -223,7 +235,7 @@ void cellularLog(char * batteryInfo, int distance, spectralChannels ch, float te
         notecard.sendRequest(req);
     }
 
-	Serial.println("Waiting to connect to Notehub...");
+	printString("Waiting to connect to Notehub...");
     // Delay until the notecard connects to notehub
     delay(30*1000);    // 30 seconds
 }
@@ -233,9 +245,9 @@ int distanceTask(char* sdLog)
 	char tempString[50];
 	int dist = readDistance();
 	
-	Serial.println("Ultrasonic Distance Sensor:");
+	printString("Ultrasonic Distance Sensor:");
 	printDistance();
-	Serial.println("");
+	printString("");
 
 	snprintf_P(tempString, sizeof(tempString), PSTR(",%d"), dist);
 	strncat(sdLog, tempString, strlen(tempString));
@@ -245,9 +257,9 @@ int distanceTask(char* sdLog)
 float tempTask(char* sdLog)
 {
 	char tempString[50];
-	Serial.println("Temperature Sensor:");
+	printString("Temperature Sensor:");
 	printTemp();
-	Serial.println("");
+	printString("");
 
 	float temp = readTemp();
 
@@ -276,7 +288,7 @@ spectralChannels spectralTask(char* sdLog)
 	processSpectrum(ch, n);
 
 	// will only print when the spectral values has been processed
-	Serial.println("Spectral Sensor:");
+	printString("Spectral Sensor:");
 	printSpectrum(ch);
 
 	// place in spectralTask function
@@ -284,16 +296,36 @@ spectralChannels spectralTask(char* sdLog)
 	strncat(sdLog, tempString, strlen(tempString));
 
 
-    Serial.println("--------------------------------------");
+    printString("--------------------------------------");
 
-	Serial.println("Waiting...");
-	Serial.println("");
+	printString("Waiting...");
+	printString("");
     delay(3000);	// delay for 8 seconds after 10 readings then repeat
 	return ch;
 }
 
 void batteryInfoTask(char* sdLog)	// void for now, later on will return battery info data type
 {
+	static uint32_t i;
+	uint8_t j, result;
+	uint16_t capacity, chargeCurrent, loadVoltage, ;
+	i++;
+	node.setTransmitBuffer(0, lowWord(i));
+	node.setTransmitBuffer(1, highWord(i));
+	result = node.readHoldingRegisters(STARTING_REGISTER, NUM_DATA_REGISTERS);
+	if (result == node.ku8MBSuccess)
+	{
+		printString("Successfully read the data registers!");
+		for (j = 0; j < NUM_DATA_REGISTERS; j++)
+		{
+			data_registers[j] = node.getResponseBuffer(j);
+		}
+	}
+	else
+	{
+		printString("Failed to read the data registers...");
+	}
+	
 	String batteryInfoString = "N/A";
 	batteryInfoString.toCharArray(sdLog, batteryInfoString.length()+1);
 }
@@ -428,7 +460,8 @@ void printMultiString(const char *toPrint)
 	std::istringstream iss(toPrint);
 	while (std::getline(iss, line))
 	{
-		Serial.println(line.c_str());
+		// Serial.println(line.c_str());
+		printString(line.c_str());
 	}
 }
 

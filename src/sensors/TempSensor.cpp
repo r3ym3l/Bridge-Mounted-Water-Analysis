@@ -10,8 +10,8 @@ void tempInit()
 {
     while (!sht30.begin(SHT30_I2C_ADDRESS)) 
     {
-        Serial.println("Couldn't find SHT30");
-        while (1) delay(1);
+        printString("Couldn't find SHT30");
+        delay(1000);
     }
 }
 
@@ -34,8 +34,8 @@ void printTemp()
     
     if (!isnan(temp)) 
     {
-        Serial.print("temp = ");
-        Serial.print(temp);
-        Serial.println(" *C");
+        printString("temp = ");
+        printString(String(temp));
+        printString(" *C");
     }
 }

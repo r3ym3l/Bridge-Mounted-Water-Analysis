@@ -18,7 +18,7 @@ int readDistance()
 void printDistance() 
 {
     int distance = readDistance();
-    Serial.print("dist = ");
-    Serial.print(distance);
-    Serial.println(" mm");
+    printString("dist = ");
+    printString(String(distance));
+    printString(" mm");
 }

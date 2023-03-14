@@ -1,4 +1,5 @@
 #include <SD.h>
+#include "main.h"
 
 // Functions
 bool sdInit();
