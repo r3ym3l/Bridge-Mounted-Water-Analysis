@@ -27,14 +27,27 @@ void printMultiString(const char* toPrint);
 
 void setup(void)
 {
+	doneHandle = 1;
 	currentMillis = millis();
+	previousMillis = currentMillis;
+
     Serial.begin(115200);
 
 	// if Serial is not initialized and 10 seconds passed
 	// keep program running 
-    while (!Serial && ((currentMillis - previousMillis) > 10*1000))
+    while (!Serial.available() && ((currentMillis - previousMillis) < 10*1000))
+	{
+		currentMillis = millis();
+	}
+
+	if (Serial.available())
 	{
 		previousMillis = currentMillis;
+		while (!doneHandle && ((currentMillis - previousMillis) < 10*1000))
+		{
+			currentMillis = millis();
+			cmdHandler();
+		}
 	}
 
 	// sensor setups
@@ -43,13 +56,6 @@ void setup(void)
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
 	cellularSetup();
-
-	// NEEDS FIXING
-	// if(!(readFileSize(fileNameFormat) > 0))
-	// {
-	// 	Serial.println("Adding headers to csv file");
-	// 	writeToSD(fileNameFormat, fileHeader);
-	// }
 
 	// Initialize Charge Controller Modbus
 	Serial.println("Initializing Charge Controller Modbus");
@@ -403,12 +409,6 @@ void cmdHandler()
 						printMultiString(menuString);
 						break;
 					}
-					case '0':
-					{
-						Serial.println('0');
-						Serial.println("Which sensor would you like to toggle?... ");
-						break;
-					}
 					case '1':
 					{
 						Serial.println('1');
@@ -441,6 +441,7 @@ void cmdHandler()
 						Serial.println('3');
 						Serial.println("Set Sensor Read Interval Time: ");
 						printMultiString(intervalString);
+						doneHandle = 0;
 						state = 3;
 						break;
 					}
@@ -448,6 +449,7 @@ void cmdHandler()
 					{
 						Serial.println('4');
 						Serial.println("Set the Date and Time using this format... ");
+						doneHandle = 0;
 						break;
 					}
 					default:
@@ -505,6 +507,7 @@ void cmdHandler()
 			{
 				break;
 			}
+			doneHandle = 1;
 		}
 	}
 }
@@ -519,10 +522,3 @@ void printMultiString(const char *toPrint)
 		Serial.println(line.c_str());
 	}
 }
-
-// void Serial.println(String toPrint)
-// {
-// 	if (Serial.available() > 0){
-// 		Serial.println(toPrint);
-// 	}
-// }
