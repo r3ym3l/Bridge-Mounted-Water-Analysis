@@ -42,7 +42,7 @@ void setup(void)
 	tempInit();
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
-	//cellularSetup();
+	cellularSetup();
 
 	// NEEDS FIXING
 	// if(!(readFileSize(fileNameFormat) > 0))
@@ -146,7 +146,7 @@ void loop(void)
 		// Clearing the array
 		sdLog[0] = '\0';
 
-		//cellularLog("N/A", distance, ch, temp, rtc);
+		cellularLog("N/A", distance, ch, temp, rtc);
 	}
 }
 
@@ -333,7 +333,9 @@ void batteryInfoTask(char* sdLog)	// void for now, later on will return battery 
 	// Initialize variables
 	static uint32_t i;
 	uint8_t j, result;
-	uint16_t capacity, chargeCurrent, loadVoltage, loadCurrent, solarVoltage, solarCurrent, chargeToday, dischargeToday;
+	uint16_t capacity;
+	float chargeCurrent, batteryVoltage, loadVoltage, loadCurrent, solarVoltage, solarCurrent, chargeToday, dischargeToday;
+
 	char tempString[100];
 
 	i++;
@@ -354,15 +356,17 @@ void batteryInfoTask(char* sdLog)	// void for now, later on will return battery 
 	}
 
 	capacity = data_registers[CAPACITY_IDX];
-	chargeCurrent = data_registers[CHARGING_CURRENT_IDX];
-	loadVoltage = data_registers[LOAD_VOLTAGE_IDX];
-	loadCurrent = data_registers[LOAD_CURRENT_IDX];
-	solarVoltage = data_registers[SOLAR_VOLTAGE_IDX];
-	solarCurrent = data_registers[SOLAR_CURRENT_IDX];
-	chargeToday = data_registers[CHARGE_TODAY_IDX];
-	dischargeToday = data_registers[DISCHARGE_TODAY_IDX];
-	
-	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%d,%d,%d,%d,%d,%d,%d"), capacity, chargeCurrent, loadVoltage, loadCurrent, solarVoltage, solarCurrent, chargeToday, dischargeToday);
+	batteryVoltage = data_registers[BATTERY_VOLTAGE_IDX] * 0.1;
+	chargeCurrent = data_registers[CHARGING_CURRENT_IDX] * 0.01;
+	loadVoltage = data_registers[LOAD_VOLTAGE_IDX] * 0.1;
+	loadCurrent = data_registers[LOAD_CURRENT_IDX] * 0.01;
+	solarVoltage = data_registers[SOLAR_VOLTAGE_IDX] * 0.1;
+	solarCurrent = data_registers[SOLAR_CURRENT_IDX] * 0.01;
+	chargeToday = data_registers[CHARGE_TODAY_IDX] * 0.1;
+	dischargeToday = data_registers[DISCHARGE_TODAY_IDX] * 0.1;
+
+	snprintf_P(tempString, sizeof(tempString), PSTR("%d,%f,%f,%f,%f,%f,%f,%f,%f"), capacity, batteryVoltage, chargeCurrent, loadVoltage, loadCurrent, solarVoltage, solarCurrent, chargeToday, dischargeToday);
+	Serial.println(tempString);
 	strncat(sdLog, tempString, strlen(tempString));
 }
 

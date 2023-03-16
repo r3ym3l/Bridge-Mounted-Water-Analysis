@@ -28,9 +28,10 @@
 #define MODBUS_ADDRESS 0xFF
 #define STARTING_REGISTER 0x100
 #define CAPACITY_IDX 0x00
-#define CHARGING_CURRENT_IDX 0x01
-#define LOAD_VOLTAGE_IDX 0x05
-#define LOAD_CURRENT_IDX 0x04
+#define BATTERY_VOLTAGE_IDX 0x01
+#define CHARGING_CURRENT_IDX 0x02
+#define LOAD_VOLTAGE_IDX 0x04
+#define LOAD_CURRENT_IDX 0x05
 #define SOLAR_VOLTAGE_IDX 0x07
 #define SOLAR_CURRENT_IDX 0x08
 #define CHARGE_TODAY_IDX 0x11
@@ -60,7 +61,28 @@ bool RTCConnected;
 
 String fileNameFormat = "datalog.csv";
 String fileNameDate = "";
-String fileHeader = "Battery Information (Pending),Distance(mm),F1(405-425nm),F2(435-455nm),F3(470-490nm),F4(505-525nm),F5(545-565nm),F6(580-600nm),F7(620-640nm),F8(670-690nm),NIR(900nm),Temperature(Celsius),Timestamp";
+const char *fileHeader = 
+"Battery Capacity(%),"
+"Charge Current(A),"
+"Load Voltage(V),"
+"Load Current(A),"
+"Solar Panel Voltage(V),"
+"Solar Panel Current(A),"
+"Charge Today(Ah)"
+"Discharge Today(Ah)"
+"Distance(mm),"
+"F1(405-425nm),"
+"F2(435-455nm),"
+"F3(470-490nm),"
+"F4(505-525nm),"
+"F5(545-565nm),"
+"F6(580-600nm),"
+"F7(620-640nm),"
+"F8(670-690nm),"
+"NIR(900nm),"
+"Temperature(Celsius),"
+"Timestamp";
+
 char input;
 int state;
 
