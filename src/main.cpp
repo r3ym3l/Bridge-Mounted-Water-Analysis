@@ -13,8 +13,8 @@ struct myBinaryPayload {
 };
 
 void cellularSetup();
-void cellularLog(char * batteryInfo, int distance, spectralChannels ch, float temp, char * timestamp);
-void batteryInfoTask(char* sdLog);
+void cellularLog(batteryInfo bi, int distance, spectralChannels ch, float temp, char * timestamp);
+batteryInfo batteryInfoTask(char* sdLog);
 
 // sensor tasks
 int distanceTask(char* sdLog);
@@ -193,14 +193,14 @@ void cellularSetup()
         if (body != NULL) {
 
             // Define the JSON template
-            JAddStringToObject(body, "Battery Capacity(%)", 1);					// integer
-			JAddStringToObject(body, "Charge Current(A)", 1.1);					// float
-			JAddStringToObject(body, "Load Voltage(V)", 1.1);					// float
-			JAddStringToObject(body, "Load Current(A)", 1.1);					// float
-			JAddStringToObject(body, "Solar Panel Voltage(V)", 1.1);			// float
-			JAddStringToObject(body, "Solar Panel Current(A)", 1.1);			// float
-			JAddStringToObject(body, "Charge Today(Ah)", 1.1);					// float
-			JAddStringToObject(body, "Discharge Today(Ah)", 1.1);				// float
+            JAddNumberToObject(body, "Battery Capacity(%)", 1);					// integer
+			JAddNumberToObject(body, "Charge Current(A)", 1.1);					// float
+			JAddNumberToObject(body, "Load Voltage(V)", 1.1);					// float
+			JAddNumberToObject(body, "Load Current(A)", 1.1);					// float
+			JAddNumberToObject(body, "Solar Panel Voltage(V)", 1.1);			// float
+			JAddNumberToObject(body, "Solar Panel Current(A)", 1.1);			// float
+			JAddNumberToObject(body, "Charge Today(Ah)", 1.1);					// float
+			JAddNumberToObject(body, "Discharge Today(Ah)", 1.1);				// float
             JAddNumberToObject(body, "Distance(mm)", 1);          				// integer
 			JAddNumberToObject(body, "F1(405-425nm)", 1);       				// integer
 			JAddNumberToObject(body, "F2(435-455nm)", 1);       				// integer
@@ -232,7 +232,7 @@ void cellularLog(batteryInfo bi, int distance, spectralChannels ch, float temp, 
 {
 	// Add a binary data structure to the simulation
     struct myBinaryPayload binaryData;
-	binaryData.batteryInfo = batteryInfo;
+	binaryData.bi = bi;
 	binaryData.distance = distance;
 	binaryData.ch = ch;
 	binaryData.temperature = temp;
@@ -245,14 +245,14 @@ void cellularLog(batteryInfo bi, int distance, spectralChannels ch, float temp, 
 		JAddBoolToObject(req, "sync", true);
         J *body = JCreateObject();
         if (body) {
-            JAddStringToObject(body, "Battery Capacity(%)", bi.capacity);			// integer
-			JAddStringToObject(body, "Charge Current(A)", bi.chargeCurrent);		// float
-			JAddStringToObject(body, "Load Voltage(V)", bi.loadVoltage);			// float
-			JAddStringToObject(body, "Load Current(A)", bi.loadCurrent);			// float
-			JAddStringToObject(body, "Solar Panel Voltage(V)", bi.solarVoltage);	// float
-			JAddStringToObject(body, "Solar Panel Current(A)", bi.current);			// float
-			JAddStringToObject(body, "Charge Today(Ah)", bi.chargeToday);			// float
-			JAddStringToObject(body, "Discharge Today(Ah)", bi.dischargeToday);		// float
+            JAddNumberToObject(body, "Battery Capacity(%)", bi.capacity);			// integer
+			JAddNumberToObject(body, "Charge Current(A)", bi.chargeCurrent);		// float
+			JAddNumberToObject(body, "Load Voltage(V)", bi.loadVoltage);			// float
+			JAddNumberToObject(body, "Load Current(A)", bi.loadCurrent);			// float
+			JAddNumberToObject(body, "Solar Panel Voltage(V)", bi.solarVoltage);	// float
+			JAddNumberToObject(body, "Solar Panel Current(A)", bi.solarCurrent);			// float
+			JAddNumberToObject(body, "Charge Today(Ah)", bi.chargeToday);			// float
+			JAddNumberToObject(body, "Discharge Today(Ah)", bi.dischargeToday);		// float
             JAddNumberToObject(body, "Distance(mm)", distance);          			// integer
 			JAddNumberToObject(body, "F1(405-425nm)", ch.f1);       				// integer
 			JAddNumberToObject(body, "F2(435-455nm)", ch.f2);       				// integer
