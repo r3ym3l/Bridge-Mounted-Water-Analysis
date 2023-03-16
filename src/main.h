@@ -50,7 +50,7 @@ long duration;
 int distance;
 
 unsigned long previousMillis = 0UL;
-unsigned long distanceReadInterval = 2000UL;
+unsigned long distanceReadInterval = 30000UL;
 unsigned long currentMillis = 0;
 bool doneHandle;
 
@@ -77,6 +77,7 @@ String fileNameFormat = "datalog.csv";
 String fileNameDate = "";
 const char *fileHeader = 
 "Battery Capacity(%),"
+"Battery Voltage(V),"
 "Charge Current(A),"
 "Load Voltage(V),"
 "Load Current(A),"

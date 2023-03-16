@@ -40,22 +40,25 @@ void setup(void)
 		currentMillis = millis();
 	}
 
-	if (Serial.available())
-	{
-		previousMillis = currentMillis;
-		while (!doneHandle && ((currentMillis - previousMillis) < 10*1000))
-		{
-			currentMillis = millis();
-			cmdHandler();
-		}
-	}
-
 	// sensor setups
 	spectralInit();
 	tempInit();
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
-	cellularSetup();
+	//cellularSetup();
+
+	if (Serial.available())
+	{
+		currentMillis = millis();
+		previousMillis = currentMillis;
+		state = 0;
+		printMultiString(menuString);
+		while (!doneHandle || ((currentMillis - previousMillis) < 20*1000))
+		{
+			currentMillis = millis();
+			cmdHandler();
+		}
+	}
 
 	// Initialize Charge Controller Modbus
 	Serial.println("Initializing Charge Controller Modbus");
@@ -95,41 +98,38 @@ void setup(void)
 		Serial.print("Date and Time is: ");
 		Serial.println(getTimeString());
 	}
-	state = 0;
-	printMultiString(menuString);
 }
 
 void loop(void)
 {
-	// Handle any commands from the user
-	//Serial.println("");
-	cmdHandler();
-
-	if (!SDConnected)
-	{
-		if (sdInit())
+	//currentMillis = millis();
+	//if (currentMillis - previousMillis > distanceReadInterval)
+	//{
+		if (!SDConnected)
 		{
-			SDConnected = true;
-			Serial.println("SD card is connected.");
+			if (sdInit())
+			{
+				SDConnected = true;
+				Serial.println("SD card is connected.");
+			}
 		}
-	}
 
-	currentMillis = millis();
-	char sdLog[100];
-	
-	//Serial.println("");
-	// NEEDS UPDATE:
-	// Do we need these read intervals? 
-	// Current code still writes to SD with only RTC value due to the conditions not being met below
-	if (currentMillis - previousMillis > distanceReadInterval)
-	{
+		char sdLog[150];
+
+		// Timestamp
+		String rtcString = getTimeString();
+		rtcString.toCharArray(sdLog, rtcString.length()+1);
+		//rtcString.toCharArray(rtc, rtcString.length()+1);
+		
+
+
 		batteryInfo bi = batteryInfoTask(sdLog);
 
 		// sensor tasks
 		int distance = distanceTask(sdLog);
 		spectralChannels ch = spectralTask(sdLog);
 		float temp = tempTask(sdLog);
-		previousMillis = currentMillis;
+
 
 		// Write to log to SD card
 		if(!writeToSD(fileNameFormat, sdLog) && !writeToSD(fileNameDate, sdLog))
@@ -142,18 +142,13 @@ void loop(void)
 			Serial.println(sdLog);
 		}
 
-		char rtc[20];
+		//char rtc[20];
 
-		// Timestamp
-		String rtcString = getTimeString();
-		rtcString.toCharArray(sdLog, rtcString.length()+1);
-		rtcString.toCharArray(rtc, rtcString.length()+1);
 
-		// Clearing the array
-		sdLog[0] = '\0';
-
-		cellularLog(bi, distance, ch, temp, rtc);
-	}
+		//cellularLog(bi, distance, ch, temp, rtc);
+		//previousMillis = currentMillis;
+		sleep_ms(distanceReadInterval);
+	//}
 }
 
 void cellularSetup()
@@ -384,8 +379,8 @@ batteryInfo batteryInfoTask(char* sdLog)	// void for now, later on will return b
 	bi.chargeToday = data_registers[CHARGE_TODAY_IDX] * 0.1;
 	bi.dischargeToday = data_registers[DISCHARGE_TODAY_IDX] * 0.1;
 
-	snprintf_P(tempString, sizeof(tempString), PSTR("%d,%f,%f,%f,%f,%f,%f,%f,%f"), bi.capacity, bi.batteryVoltage, bi.chargeCurrent, bi.loadVoltage, bi.loadCurrent, bi.solarVoltage, bi.solarCurrent, bi.chargeToday, bi.dischargeToday);
-	Serial.println(tempString);
+	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%f,%f,%f,%f,%f,%f,%f,%f"), bi.capacity, bi.batteryVoltage, bi.chargeCurrent, bi.loadVoltage, bi.loadCurrent, bi.solarVoltage, bi.solarCurrent, bi.chargeToday, bi.dischargeToday);
+	//Serial.println(tempString);
 	strncat(sdLog, tempString, strlen(tempString));
 
 	return bi;
@@ -448,8 +443,19 @@ void cmdHandler()
 					case '4':
 					{
 						Serial.println('4');
-						Serial.println("Set the Date and Time using this format... ");
-						doneHandle = 0;
+						Serial.println("Set the Date and Time using the format: YYYY MM DD HH mm ss");
+						Serial.setTimeout(20*1000);
+						String input = Serial.readStringUntil(' ');
+						int year = input.substring(0, 4).toInt();
+						int month = input.substring(4, 6).toInt();
+						int day = input.substring(6, 8).toInt();
+						int hour = input.substring(8, 10).toInt();
+						int minute = input.substring(10, 12).toInt();
+						int second = input.substring(12, 14).toInt();
+						Serial.println(input);
+						setTime(year, month, day, hour, minute, second);
+						Serial.print("Date and Time set to: ");
+						Serial.println(getTimeString());
 						break;
 					}
 					default:
@@ -502,7 +508,7 @@ void cmdHandler()
 				}
 				break;
 			}
-		
+
 			default:
 			{
 				break;
