@@ -117,7 +117,7 @@ void loop(void)
 	// Current code still writes to SD with only RTC value due to the conditions not being met below
 	if (currentMillis - previousMillis > distanceReadInterval)
 	{
-		batteryInfoTask(sdLog);
+		batteryInfo bi = batteryInfoTask(sdLog);
 
 		// sensor tasks
 		int distance = distanceTask(sdLog);
@@ -146,7 +146,7 @@ void loop(void)
 		// Clearing the array
 		sdLog[0] = '\0';
 
-		cellularLog("N/A", distance, ch, temp, rtc);
+		cellularLog(bi, distance, ch, temp, rtc);
 	}
 }
 
@@ -342,7 +342,7 @@ spectralChannels spectralTask(char* sdLog)
 	return ch;
 }
 
-void batteryInfoTask(char* sdLog)	// void for now, later on will return battery info data type
+batteryInfo batteryInfoTask(char* sdLog)	// void for now, later on will return battery info data type
 {
 	// Initialize variables
 	static uint32_t i;
@@ -381,6 +381,8 @@ void batteryInfoTask(char* sdLog)	// void for now, later on will return battery 
 	snprintf_P(tempString, sizeof(tempString), PSTR("%d,%f,%f,%f,%f,%f,%f,%f,%f"), bi.capacity, bi.batteryVoltage, bi.chargeCurrent, bi.loadVoltage, bi.loadCurrent, bi.solarVoltage, bi.solarCurrent, bi.chargeToday, bi.dischargeToday);
 	Serial.println(tempString);
 	strncat(sdLog, tempString, strlen(tempString));
+
+	return bi;
 }
 
 void cmdHandler()
