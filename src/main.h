@@ -56,6 +56,19 @@ unsigned long currentMillis = 0;
 ModbusMaster node;
 uint16_t data_registers[NUM_DATA_REGISTERS];
 
+struct batteryInfo 
+{
+	uint16_t capacity = 0;
+	float batteryVoltage = 0.0;
+	float chargeCurrent = 0.0;
+	float loadVoltage = 0.0;
+	float loadCurrent = 0.0;
+	float solarVoltage = 0.0;
+	float solarCurrent = 0.0;
+	float chargeToday = 0.0;
+	float dischargeToday = 0.0;
+};
+
 bool SDConnected;
 bool RTCConnected;
 
@@ -68,8 +81,8 @@ const char *fileHeader =
 "Load Current(A),"
 "Solar Panel Voltage(V),"
 "Solar Panel Current(A),"
-"Charge Today(Ah)"
-"Discharge Today(Ah)"
+"Charge Today(Ah),"
+"Discharge Today(Ah),"
 "Distance(mm),"
 "F1(405-425nm),"
 "F2(435-455nm),"
@@ -110,14 +123,6 @@ const char *dateTimeMenu = R"""(
 |5: Minute
 |6: Second
 )""";
-
-const char *headerString = 
-"Timestamp, " 
-"Distance (cm), " 
-"Temperature (°C), " 
-"Humidity, " 
-"F1, F2, F3, F4, F5, F6, F7, F8, F9, "
-"Battery Health";
 
 enum {
     setDistanceInterval = 0,
