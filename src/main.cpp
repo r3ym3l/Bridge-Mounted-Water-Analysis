@@ -61,17 +61,26 @@ void setup(void)
 	// only uses date as the file name
 	int index = getTimeString().indexOf(' ');
 	fileNameDate = getTimeString().substring(0, index);
+
+	createFile(fileNameDate);
+
 	Serial.print("fileNameDate: ");
 	Serial.println(fileNameDate);
 	Serial.print("Is fileNameFormat file empty? ");
 	Serial.println(isFileEmpty(fileNameFormat));
 	Serial.print("Is fileNameDate file empty? ");
 	Serial.println(isFileEmpty(fileNameDate));
+	
 	// checks if file has no data, then add headers
-	if (isFileEmpty(fileNameFormat) && isFileEmpty(fileNameDate))
+	if (isFileEmpty(fileNameFormat))
 	{
-		Serial.println("Adding headers to csv file");
+		Serial.println("Adding headers to csv file 1");
 		writeToSD(fileNameFormat, fileHeader);
+	}
+
+	if (isFileEmpty(fileNameDate))
+	{
+		Serial.println("Adding headers to csv file 2");
 		writeToSD(fileNameDate, fileHeader);
 	}
 

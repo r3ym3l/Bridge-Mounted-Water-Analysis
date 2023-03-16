@@ -56,24 +56,44 @@ void printFiles()
   root.ls(LS_R | LS_DATE | LS_SIZE);
 }
 
+void createFile(String fileName)
+{
+  myFile = SD.open(fileName, FILE_WRITE);
+
+  if (myFile)
+  {
+    myFile.close();
+    Serial.println("File Created.");
+  }
+  else
+  {
+    Serial.println("Error Creating File.");
+  }
+}
+
 bool isFileEmpty(String fileName)
 {
   bool isEmpty = false;
   myFile = SD.open(fileName, FILE_READ);
 
   int row_count = 0;
-  if (myFile.available())
+  if (myFile)
   {
-    String line = myFile.readStringUntil('\n');
-    if (line == "\r\n" || line == "\n" || line == "") 
+    if (myFile.available())
     {
-      row_count += 1;
+      String line = myFile.readString();
+      if (line == "\r\n" || line == "\n" || line == "") 
+      {
+        row_count += 1;
+      }
     }
   }
 
-  if (row_count > 0)
+  if (row_count == 1)
   {
     isEmpty = true;
   }
+
+  myFile.close();
   return isEmpty;
 }
