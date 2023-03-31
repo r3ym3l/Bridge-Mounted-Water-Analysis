@@ -66,7 +66,7 @@ def extract_json_from_notehub():
 auth_token = authenticate_notehub()
 df = update_data()
 df['Distance(m)'] = df['Distance(mm)'] / 1000.0
-df['Time'] = datetime.now() - timedelta(33) + (df.index * timedelta(hours=1))
+df['Time'] = datetime.now() - timedelta(14) + (df.index * timedelta(hours=1))
 
 app = Dash(__name__, external_stylesheets=[dbc.themes.MORPH])
 
