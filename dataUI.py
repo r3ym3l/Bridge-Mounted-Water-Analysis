@@ -6,6 +6,8 @@ import csv
 import datetime
 import json
 import re
+from tkinter import *
+from tkinter import ttk
 
 filename = 'DATALOG.csv'
 
@@ -122,8 +124,22 @@ def process_json_to_csv(data_json: dict):
     
     data_file.close()
 
-data_json = extract_json_from_notehub()
-process_json_to_csv(data_json)
+# data_json = extract_json_from_notehub()
+# process_json_to_csv(data_json)
 
 spectral_ui()
 distance_ui()
+
+# Create an instance of tkinter frame
+win = Tk()
+
+# Set the size of the tkinter window
+win.geometry("700x350")
+
+# Create an object of Style widget
+style = ttk.Style()
+style.theme_use('clam')
+
+# Add a Treeview widget
+
+N/A,2647,4,14,14,29,45,50,50,1.103448271751404,0.2068965584039688,22.30999946594238,2023/3/9 21:10:1
