@@ -62,6 +62,7 @@ void createFile(String fileName)
 
   if (myFile)
   {
+    myFile.print("");
     myFile.close();
     Serial.println("File Created.");
   }
@@ -74,7 +75,7 @@ void createFile(String fileName)
 bool isFileEmpty(String fileName)
 {
   bool isEmpty = false;
-  myFile = SD.open(fileName, FILE_READ);
+  myFile = SD.open(fileName, FILE_WRITE);
 
   int row_count = 0;
   if (myFile)
@@ -82,12 +83,14 @@ bool isFileEmpty(String fileName)
     if (myFile.available())
     {
       String line = myFile.readString();
-      if (line == "\r\n" || line == "\n" || line == "") 
+      Serial.print(line);
+      if (line == "\r\n" || line == "\n" || line == "" || line == NULL) 
       {
         row_count += 1;
       }
     }
   }
+  Serial.println(row_count);
 
   if (row_count == 1)
   {

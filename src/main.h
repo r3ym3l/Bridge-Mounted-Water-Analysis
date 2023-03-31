@@ -50,8 +50,9 @@ long duration;
 int distance;
 
 unsigned long previousMillis = 0UL;
-unsigned long distanceReadInterval = 2000UL;
+unsigned long distanceReadInterval = 30000UL;
 unsigned long currentMillis = 0;
+bool doneHandle;
 
 ModbusMaster node;
 uint16_t data_registers[NUM_DATA_REGISTERS];
@@ -76,6 +77,7 @@ String fileNameFormat = "datalog.csv";
 String fileNameDate = "";
 const char *fileHeader = 
 "Battery Capacity(%),"
+"Battery Voltage(V),"
 "Charge Current(A),"
 "Load Voltage(V),"
 "Load Current(A),"
@@ -101,7 +103,6 @@ int state;
 
 const char *menuString = R"""(|   Commands    |
 |h: Print commands menu
-|0: Toggle Sensor On or Off
 |1: Print Date and Time
 |2: Print Card Information
 |3: Set Interval

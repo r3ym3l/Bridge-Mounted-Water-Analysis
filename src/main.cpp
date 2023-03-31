@@ -13,8 +13,8 @@ struct myBinaryPayload {
 };
 
 void cellularSetup();
-void cellularLog(char * batteryInfo, int distance, spectralChannels ch, float temp, char * timestamp);
-void batteryInfoTask(char* sdLog);
+void cellularLog(batteryInfo bi, int distance, spectralChannels ch, float temp, char * timestamp);
+batteryInfo batteryInfoTask(char* sdLog);
 
 // sensor tasks
 int distanceTask(char* sdLog);
@@ -27,14 +27,17 @@ void printMultiString(const char* toPrint);
 
 void setup(void)
 {
+	doneHandle = 1;
 	currentMillis = millis();
+	previousMillis = currentMillis;
+
     Serial.begin(115200);
 
 	// if Serial is not initialized and 10 seconds passed
 	// keep program running 
-    while (!Serial && ((currentMillis - previousMillis) > 10*1000))
+    while (!Serial.available() && ((currentMillis - previousMillis) < 10*1000))
 	{
-		previousMillis = currentMillis;
+		currentMillis = millis();
 	}
 
 	// sensor setups
@@ -42,14 +45,20 @@ void setup(void)
 	tempInit();
 	SDConnected = sdInit();
 	RTCConnected = rtcInit();
-	cellularSetup();
+	//cellularSetup();
 
-	// NEEDS FIXING
-	// if(!(readFileSize(fileNameFormat) > 0))
-	// {
-	// 	Serial.println("Adding headers to csv file");
-	// 	writeToSD(fileNameFormat, fileHeader);
-	// }
+	if (Serial.available())
+	{
+		currentMillis = millis();
+		previousMillis = currentMillis;
+		state = 0;
+		printMultiString(menuString);
+		while (!doneHandle || ((currentMillis - previousMillis) < 20*1000))
+		{
+			currentMillis = millis();
+			cmdHandler();
+		}
+	}
 
 	// Initialize Charge Controller Modbus
 	Serial.println("Initializing Charge Controller Modbus");
@@ -89,41 +98,38 @@ void setup(void)
 		Serial.print("Date and Time is: ");
 		Serial.println(getTimeString());
 	}
-	state = 0;
-	printMultiString(menuString);
 }
 
 void loop(void)
 {
-	// Handle any commands from the user
-	//Serial.println("");
-	cmdHandler();
-
-	if (!SDConnected)
-	{
-		if (sdInit())
+	//currentMillis = millis();
+	//if (currentMillis - previousMillis > distanceReadInterval)
+	//{
+		if (!SDConnected)
 		{
-			SDConnected = true;
-			Serial.println("SD card is connected.");
+			if (sdInit())
+			{
+				SDConnected = true;
+				Serial.println("SD card is connected.");
+			}
 		}
-	}
 
-	currentMillis = millis();
-	char sdLog[100];
-	
-	//Serial.println("");
-	// NEEDS UPDATE:
-	// Do we need these read intervals? 
-	// Current code still writes to SD with only RTC value due to the conditions not being met below
-	if (currentMillis - previousMillis > distanceReadInterval)
-	{
+		char sdLog[150];
+
+		// Timestamp
+		String rtcString = getTimeString();
+		rtcString.toCharArray(sdLog, rtcString.length()+1);
+		//rtcString.toCharArray(rtc, rtcString.length()+1);
+		
+
+
 		batteryInfo bi = batteryInfoTask(sdLog);
 
 		// sensor tasks
 		int distance = distanceTask(sdLog);
 		spectralChannels ch = spectralTask(sdLog);
 		float temp = tempTask(sdLog);
-		previousMillis = currentMillis;
+
 
 		// Write to log to SD card
 		if(!writeToSD(fileNameFormat, sdLog) && !writeToSD(fileNameDate, sdLog))
@@ -136,18 +142,13 @@ void loop(void)
 			Serial.println(sdLog);
 		}
 
-		char rtc[20];
+		//char rtc[20];
 
-		// Timestamp
-		String rtcString = getTimeString();
-		rtcString.toCharArray(sdLog, rtcString.length()+1);
-		rtcString.toCharArray(rtc, rtcString.length()+1);
 
-		// Clearing the array
-		sdLog[0] = '\0';
-
-		cellularLog(bi, distance, ch, temp, rtc);
-	}
+		//cellularLog(bi, distance, ch, temp, rtc);
+		//previousMillis = currentMillis;
+		sleep_ms(distanceReadInterval);
+	//}
 }
 
 void cellularSetup()
@@ -193,14 +194,14 @@ void cellularSetup()
         if (body != NULL) {
 
             // Define the JSON template
-            JAddStringToObject(body, "Battery Capacity(%)", 1);					// integer
-			JAddStringToObject(body, "Charge Current(A)", 1.1);					// float
-			JAddStringToObject(body, "Load Voltage(V)", 1.1);					// float
-			JAddStringToObject(body, "Load Current(A)", 1.1);					// float
-			JAddStringToObject(body, "Solar Panel Voltage(V)", 1.1);			// float
-			JAddStringToObject(body, "Solar Panel Current(A)", 1.1);			// float
-			JAddStringToObject(body, "Charge Today(Ah)", 1.1);					// float
-			JAddStringToObject(body, "Discharge Today(Ah)", 1.1);				// float
+            JAddNumberToObject(body, "Battery Capacity(%)", 1);					// integer
+			JAddNumberToObject(body, "Charge Current(A)", 1.1);					// float
+			JAddNumberToObject(body, "Load Voltage(V)", 1.1);					// float
+			JAddNumberToObject(body, "Load Current(A)", 1.1);					// float
+			JAddNumberToObject(body, "Solar Panel Voltage(V)", 1.1);			// float
+			JAddNumberToObject(body, "Solar Panel Current(A)", 1.1);			// float
+			JAddNumberToObject(body, "Charge Today(Ah)", 1.1);					// float
+			JAddNumberToObject(body, "Discharge Today(Ah)", 1.1);				// float
             JAddNumberToObject(body, "Distance(mm)", 1);          				// integer
 			JAddNumberToObject(body, "F1(405-425nm)", 1);       				// integer
 			JAddNumberToObject(body, "F2(435-455nm)", 1);       				// integer
@@ -232,7 +233,7 @@ void cellularLog(batteryInfo bi, int distance, spectralChannels ch, float temp, 
 {
 	// Add a binary data structure to the simulation
     struct myBinaryPayload binaryData;
-	binaryData.batteryInfo = batteryInfo;
+	binaryData.bi = bi;
 	binaryData.distance = distance;
 	binaryData.ch = ch;
 	binaryData.temperature = temp;
@@ -245,14 +246,14 @@ void cellularLog(batteryInfo bi, int distance, spectralChannels ch, float temp, 
 		JAddBoolToObject(req, "sync", true);
         J *body = JCreateObject();
         if (body) {
-            JAddStringToObject(body, "Battery Capacity(%)", bi.capacity);			// integer
-			JAddStringToObject(body, "Charge Current(A)", bi.chargeCurrent);		// float
-			JAddStringToObject(body, "Load Voltage(V)", bi.loadVoltage);			// float
-			JAddStringToObject(body, "Load Current(A)", bi.loadCurrent);			// float
-			JAddStringToObject(body, "Solar Panel Voltage(V)", bi.solarVoltage);	// float
-			JAddStringToObject(body, "Solar Panel Current(A)", bi.current);			// float
-			JAddStringToObject(body, "Charge Today(Ah)", bi.chargeToday);			// float
-			JAddStringToObject(body, "Discharge Today(Ah)", bi.dischargeToday);		// float
+            JAddNumberToObject(body, "Battery Capacity(%)", bi.capacity);			// integer
+			JAddNumberToObject(body, "Charge Current(A)", bi.chargeCurrent);		// float
+			JAddNumberToObject(body, "Load Voltage(V)", bi.loadVoltage);			// float
+			JAddNumberToObject(body, "Load Current(A)", bi.loadCurrent);			// float
+			JAddNumberToObject(body, "Solar Panel Voltage(V)", bi.solarVoltage);	// float
+			JAddNumberToObject(body, "Solar Panel Current(A)", bi.solarCurrent);			// float
+			JAddNumberToObject(body, "Charge Today(Ah)", bi.chargeToday);			// float
+			JAddNumberToObject(body, "Discharge Today(Ah)", bi.dischargeToday);		// float
             JAddNumberToObject(body, "Distance(mm)", distance);          			// integer
 			JAddNumberToObject(body, "F1(405-425nm)", ch.f1);       				// integer
 			JAddNumberToObject(body, "F2(435-455nm)", ch.f2);       				// integer
@@ -378,8 +379,8 @@ batteryInfo batteryInfoTask(char* sdLog)	// void for now, later on will return b
 	bi.chargeToday = data_registers[CHARGE_TODAY_IDX] * 0.1;
 	bi.dischargeToday = data_registers[DISCHARGE_TODAY_IDX] * 0.1;
 
-	snprintf_P(tempString, sizeof(tempString), PSTR("%d,%f,%f,%f,%f,%f,%f,%f,%f"), bi.capacity, bi.batteryVoltage, bi.chargeCurrent, bi.loadVoltage, bi.loadCurrent, bi.solarVoltage, bi.solarCurrent, bi.chargeToday, bi.dischargeToday);
-	Serial.println(tempString);
+	snprintf_P(tempString, sizeof(tempString), PSTR(",%d,%f,%f,%f,%f,%f,%f,%f,%f"), bi.capacity, bi.batteryVoltage, bi.chargeCurrent, bi.loadVoltage, bi.loadCurrent, bi.solarVoltage, bi.solarCurrent, bi.chargeToday, bi.dischargeToday);
+	//Serial.println(tempString);
 	strncat(sdLog, tempString, strlen(tempString));
 
 	return bi;
@@ -401,12 +402,6 @@ void cmdHandler()
 					{
 						Serial.println('h');
 						printMultiString(menuString);
-						break;
-					}
-					case '0':
-					{
-						Serial.println('0');
-						Serial.println("Which sensor would you like to toggle?... ");
 						break;
 					}
 					case '1':
@@ -441,13 +436,26 @@ void cmdHandler()
 						Serial.println('3');
 						Serial.println("Set Sensor Read Interval Time: ");
 						printMultiString(intervalString);
+						doneHandle = 0;
 						state = 3;
 						break;
 					}
 					case '4':
 					{
 						Serial.println('4');
-						Serial.println("Set the Date and Time using this format... ");
+						Serial.println("Set the Date and Time using the format: YYYY MM DD HH mm ss");
+						Serial.setTimeout(20*1000);
+						String input = Serial.readStringUntil(' ');
+						int year = input.substring(0, 4).toInt();
+						int month = input.substring(4, 6).toInt();
+						int day = input.substring(6, 8).toInt();
+						int hour = input.substring(8, 10).toInt();
+						int minute = input.substring(10, 12).toInt();
+						int second = input.substring(12, 14).toInt();
+						Serial.println(input);
+						setTime(year, month, day, hour, minute, second);
+						Serial.print("Date and Time set to: ");
+						Serial.println(getTimeString());
 						break;
 					}
 					default:
@@ -500,11 +508,12 @@ void cmdHandler()
 				}
 				break;
 			}
-		
+
 			default:
 			{
 				break;
 			}
+			doneHandle = 1;
 		}
 	}
 }
@@ -519,10 +528,3 @@ void printMultiString(const char *toPrint)
 		Serial.println(line.c_str());
 	}
 }
-
-// void Serial.println(String toPrint)
-// {
-// 	if (Serial.available() > 0){
-// 		Serial.println(toPrint);
-// 	}
-// }
